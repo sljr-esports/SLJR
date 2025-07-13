@@ -1,0 +1,235 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Cashout - SLJR</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Press Start 2P', monospace;
+      margin: 0;
+      background: #ffffff;
+      padding-bottom: 80px;
+      color: #222;
+    }
+    header {
+      text-align: center;
+      padding: 15px 0;
+      border-bottom: 2px solid #ff6600;
+      background: white;
+    }
+    header h1 {
+      font-size: 1rem;
+      color: #ff6600;
+      margin: 0;
+    }
+    .container {
+      padding: 20px;
+    }
+    .balance {
+      font-size: 0.8rem;
+      color: green;
+      margin-bottom: 20px;
+    }
+    select, input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 2px solid #ff6600;
+      border-radius: 5px;
+      font-family: monospace;
+      font-size: 0.75rem;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #ff6600;
+      color: white;
+      font-family: 'Press Start 2P', monospace;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.65rem;
+    }
+    .history {
+      margin-top: 30px;
+    }
+    .history h3 {
+      font-size: 0.8rem;
+      margin-bottom: 10px;
+    }
+    .history-entry {
+      border: 1px solid #ccc;
+      padding: 8px;
+      margin-bottom: 10px;
+      font-size: 0.6rem;
+    }
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: white;
+      border-top: 1px solid #ddd;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      height: 60px;
+      z-index: 100;
+    }
+    .bottom-nav a {
+      text-align: center;
+      font-size: 0.55rem;
+      color: #222;
+      text-decoration: none;
+    }
+    .bottom-nav a.active {
+      color: #ff6600;
+    }
+    .bottom-nav img {
+      width: 22px;
+      height: 22px;
+      margin-bottom: 2px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>SLJR E-SPORTS</h1>
+  </header>  <div class="container">
+    <div class="balance">Balance: ₹<span id="balance">0</span></div><select id="method">
+  <option value="upi">UPI</option>
+  <option value="redeem">Redeem Code</option>
+</select>
+
+<div id="upi-section">
+  <input type="text" id="upiId" placeholder="Enter UPI ID" />
+  <input type="number" id="upiAmount" placeholder="Enter Amount" />
+  <button onclick="cashoutUPI()">Withdraw via UPI</button>
+</div>
+
+<div id="redeem-section" style="display:none;">
+  <input type="text" id="email" placeholder="Enter Email" />
+  <input type="number" id="redeemAmount" placeholder="Enter Amount" />
+  <button onclick="cashoutRedeem()">Withdraw via Redeem</button>
+</div>
+
+<div class="history">
+  <h3>Redeem History</h3>
+  <div id="redeem-history"></div>
+  <h3>UPI History</h3>
+  <div id="upi-history"></div>
+</div>
+
+  </div>  <div class="bottom-nav">
+    <a href="home.html">
+      <img src="home.png" alt="Home" />
+      <div>Home</div>
+    </a>
+    <a href="redeem.html" class="active">
+      <img src="wallet.png" alt="Wallet" />
+      <div>Wallet</div>
+    </a>
+    <a href="dashboard.html">
+      <img src="profile.png" alt="Dashboard" />
+      <div>Dashboard</div>
+    </a>
+    <a href="match-history.html">
+      <img src="game-history.png" alt="History" />
+      <div>History</div>
+    </a>
+  </div>  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyA0Qhb6FpIGKqWHwo-0pOvvX7bBRh-9FHY",
+      authDomain: "sljr-e-sports.firebaseapp.com",
+      projectId: "sljr-e-sports",
+      storageBucket: "sljr-e-sports.firebasestorage.app",
+      messagingSenderId: "568709951241",
+      appId: "1:568709951241:web:75498cdedbc058c06e2dd8"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentUser;
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        currentUser = user;
+        const userRef = doc(db, "users", user.uid);
+        const snap = await getDoc(userRef);
+        if (snap.exists()) {
+          const data = snap.data();
+          document.getElementById("balance").textContent = data.balance || 0;
+          loadHistory(user.uid);
+        }
+      } else {
+        window.location.href = "index.html";
+      }
+    });
+
+    document.getElementById("method").addEventListener("change", (e) => {
+      document.getElementById("upi-section").style.display = e.target.value === 'upi' ? 'block' : 'none';
+      document.getElementById("redeem-section").style.display = e.target.value === 'redeem' ? 'block' : 'none';
+    });
+
+    async function cashoutUPI() {
+      const upiId = document.getElementById("upiId").value;
+      const amount = parseInt(document.getElementById("upiAmount").value);
+      if (!upiId || !amount || amount <= 0) return alert("Enter valid UPI ID and amount");
+      const userRef = doc(db, "users", currentUser.uid);
+      const snap = await getDoc(userRef);
+      const data = snap.data();
+      if (data.balance >= amount) {
+        await updateDoc(userRef, {
+          balance: data.balance - amount,
+          upiHistory: arrayUnion({ upiId, amount, date: new Date().toLocaleString() })
+        });
+        alert("Withdrawal via UPI applied!");
+        location.reload();
+      } else {
+        alert("Insufficient balance");
+      }
+    }
+
+    async function cashoutRedeem() {
+      const email = document.getElementById("email").value;
+      const amount = parseInt(document.getElementById("redeemAmount").value);
+      if (!email || !amount || amount <= 0) return alert("Enter valid email and amount");
+      const userRef = doc(db, "users", currentUser.uid);
+      const snap = await getDoc(userRef);
+      const data = snap.data();
+      if (data.balance >= amount) {
+        await updateDoc(userRef, {
+          balance: data.balance - amount,
+          redeemHistory: arrayUnion({ email, amount, date: new Date().toLocaleString(), code: "Pending" })
+        });
+        alert("Redeem request submitted!");
+        location.reload();
+      } else {
+        alert("Insufficient balance");
+      }
+    }
+
+    async function loadHistory(uid) {
+      const userRef = doc(db, "users", uid);
+      const snap = await getDoc(userRef);
+      const data = snap.data();
+      const redeemDiv = document.getElementById("redeem-history");
+      const upiDiv = document.getElementById("upi-history");
+      redeemDiv.innerHTML = (data.redeemHistory || []).map(h => `
+        <div class="history-entry">
+          ₹${h.amount} to ${h.email}<br/>Code: ${h.code || 'Pending'}<br/>${h.date}
+        </div>`).join('') || "<p>No redeem history</p>";
+      upiDiv.innerHTML = (data.upiHistory || []).map(h => `
+        <div class="history-entry">
+          ₹${h.amount} to ${h.upiId}<br/>${h.date}
+        </div>`).join('') || "<p>No UPI history</p>";
+    }
+  </script></body>
+</html>
