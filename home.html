@@ -3,100 +3,81 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SLJR - Home</title>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet"/>
-
+  <title>SLJR Home</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
   <style>
     body {
       margin: 0;
       font-family: 'Press Start 2P', monospace;
       background-color: #ffffff;
       color: #000;
+      padding-bottom: 80px;
     }
 
     header {
       background-color: #ff6600;
-      color: #fff;
-      padding: 12px;
+      padding: 14px;
       text-align: center;
-      font-size: 0.8rem;
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: bold;
       border-bottom: 2px solid #000;
-      position: sticky;
-      top: 0;
-      z-index: 10;
       text-shadow: 1px 1px 0 #000;
     }
 
-    .logo-title {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .logo-title img {
-      width: 30px;
-      height: 30px;
-    }
-
-    .games-container {
+    .game-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
       padding: 16px;
     }
 
-    .game-card {
-      background-color: #f2f2f2;
+    .game-box {
+      background-color: #fff;
       border: 2px solid #000;
-      border-radius: 10px;
-      padding: 10px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 4px 4px 0 #000;
       text-align: center;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 2px 2px 0 #000;
+      transition: transform 0.2s;
     }
 
-    .game-card:hover {
-      background-color: #ffe6cc;
+    .game-box:hover {
       transform: scale(1.03);
     }
 
-    .game-card img {
+    .game-box img {
       width: 100%;
       height: 100px;
       object-fit: cover;
-      border-radius: 6px;
     }
 
-    .game-title {
-      font-size: 0.6rem;
-      margin-top: 6px;
-      color: #ff6600;
-    }
-
-    .coming-soon {
+    .game-box p {
+      margin: 0;
+      padding: 8px;
       font-size: 0.5rem;
-      color: #888;
-      margin-top: 6px;
+      background-color: #ff6600;
+      color: #fff;
+      text-shadow: 1px 1px 0 #000;
     }
 
     footer {
       position: fixed;
       bottom: 0;
       width: 100%;
-      background-color: #fff;
+      background: #fff;
       border-top: 2px solid #000;
       display: flex;
       justify-content: space-around;
       padding: 10px 0;
-      z-index: 20;
+      z-index: 99;
     }
 
     footer img {
       width: 24px;
       height: 24px;
-      opacity: 0.6;
+      opacity: 0.5;
+      transition: 0.2s ease;
     }
 
     footer img.active {
@@ -107,37 +88,28 @@
 </head>
 <body>
 
-  <header>
-    <div class="logo-title">
-      <img src="sljr.png" alt="Logo" />
-      <span>SLJR E-SPORTS</span>
-    </div>
-  </header>
+  <header>SLJR E-SPORTS TOURNAMENT</header>
 
-  <div class="games-container">
-    <!-- Free Fire Max -->
-    <div class="game-card" onclick="location.href='tournament.html?id=FFM2025-07'">
-      <img src="Freefire.jpg" alt="Free Fire Max">
-      <div class="game-title">Free Fire Max</div>
+  <div class="game-grid">
+    <div class="game-box">
+      <img src="freefire.jpg" alt="Free Fire Max">
+      <p>Free Fire Max</p>
     </div>
-
-    <!-- Coming Soon -->
-    <div class="game-card">
-      <img src="placeholder.jpg" alt="Coming Soon">
-      <div class="coming-soon">More Games<br>Coming Soon</div>
+    <div class="game-box">
+      <img src="bgmi.jpg" alt="BGMI">
+      <p>BGMI (Coming Soon)</p>
     </div>
   </div>
 
   <footer>
-    <img src="home.png" class="active" alt="Home" />
-    <img src="wallet.png" alt="Wallet" onclick="location.href='redeem.html" />
-    <img src="profile.png" alt="Profile" onclick="location.href='dashbord.html />
-   
- <img src="game-history.png" alt="History" />
+    <img src="home.png" id="nav-home" onclick="location.href='home.html'" alt="Home" />
+    <img src="wallet.png" id="nav-wallet" onclick="location.href='redeem.html'" alt="Wallet" />
+    <img src="profile.png" id="nav-dashboard" onclick="location.href='dashboard.html'" alt="Dashboard" />
+    <img src="game-history.png" id="nav-history" onclick="location.href='match-history.html'" alt="Match History" />
   </footer>
 
-  <!-- Firebase Auth Check -->
   <script type="module">
+    // Firebase Auth Check
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
@@ -159,6 +131,19 @@
         window.location.href = "login.html";
       }
     });
+
+    // Set active tab
+    const path = window.location.pathname;
+    if (path.includes("home")) {
+      document.getElementById("nav-home").classList.add("active");
+    } else if (path.includes("redeem")) {
+      document.getElementById("nav-wallet").classList.add("active");
+    } else if (path.includes("dashboard")) {
+      document.getElementById("nav-dashboard").classList.add("active");
+    } else if (path.includes("match-history")) {
+      document.getElementById("nav-history").classList.add("active");
+    }
   </script>
+
 </body>
 </html>
