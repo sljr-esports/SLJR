@@ -98,7 +98,7 @@
   </div>
 
   <button class="login-btn" onclick="googleLogin()">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Google_Icon.png" alt="Google" />
+    <img src="google-logo.png" alt="Google" />
     SIGN IN WITH GOOGLE
   </button>
 
@@ -124,7 +124,7 @@
       signInWithPopup(auth, provider)
         .then((result) => {
           console.log("Signed in as:", result.user.displayName);
-          window.location.href = "home.html"; // ✅ redirect
+          window.location.href = "home.html"; // redirect to home page
         })
         .catch((error) => {
           alert("Login failed: " + error.message);
