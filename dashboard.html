@@ -15,16 +15,29 @@
     }
 
     header {
-      text-align: center;
-      padding: 15px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 16px;
+      background: #fff;
       border-bottom: 2px solid #ff6600;
-      background: white;
     }
 
     header h1 {
       font-size: 1rem;
       color: #ff6600;
       margin: 0;
+    }
+
+    .logout-btn {
+      background: transparent;
+      border: 1px solid #ff6600;
+      color: #ff6600;
+      padding: 6px 12px;
+      font-size: 0.55rem;
+      font-family: 'Press Start 2P', monospace;
+      border-radius: 6px;
+      cursor: pointer;
     }
 
     .profile {
@@ -61,6 +74,25 @@
       font-size: 0.7rem;
     }
 
+    .referral {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 0.6rem;
+    }
+
+    .referral p {
+      margin: 6px;
+    }
+
+    .referral input {
+      width: 90%;
+      padding: 6px;
+      font-size: 0.6rem;
+      margin-top: 6px;
+      border: 1px dashed #ff6600;
+      text-align: center;
+    }
+
     .section {
       padding: 10px 20px;
     }
@@ -77,25 +109,6 @@
       font-size: 0.55rem;
       line-height: 1.5;
       color: #333;
-    }
-
-    .section a.button {
-      display: inline-block;
-      margin-top: 10px;
-      padding: 8px 12px;
-      font-size: 0.55rem;
-      border: 2px solid #ff6600;
-      color: #ff6600;
-      background: transparent;
-      border-radius: 6px;
-      text-decoration: none;
-      font-family: 'Press Start 2P', monospace;
-      transition: 0.3s ease;
-    }
-
-    .section a.button:hover {
-      background: #ff6600;
-      color: white;
     }
 
     .bottom-nav {
@@ -134,6 +147,7 @@
 
   <header>
     <h1>SLJR E-SPORTS</h1>
+    <button class="logout-btn" onclick="logout()">Logout</button>
   </header>
 
   <div class="profile">
@@ -142,8 +156,14 @@
     <p id="user-email">Loading...</p>
   </div>
 
-  <div class="balance" id="user-balance">
-    ₹0.00
+  <div class="balance" id="user-balance">₹0.00</div>
+
+  <div class="referral">
+    <p><strong>Your Referral Code:</strong></p>
+    <input type="text" id="ref-code" readonly />
+
+    <p><strong>Your Referral Link:</strong></p>
+    <input type="text" id="ref-link" readonly />
   </div>
 
   <div class="section">
@@ -153,13 +173,12 @@
 
   <div class="section">
     <h3>REFERRAL PROGRAM</h3>
-    <p>Refer friends and earn ₹15 per user. New users get ₹10 instantly.</p>
-    <a href="refferal.html" class="button">My Referral</a>
+    <p>Refer friends and earn ₹15 per user. New users get ₹10 instantly. Share your code & link!</p>
   </div>
 
   <div class="section">
-    <h3>FREQUENTLY ASKED QUESTIONS</h3>
-    <p>• How do I get rewards?<br>• When will I receive my cashout?<br>• Can I participate daily?</p>
+    <h3>FAQ</h3>
+    <p>• When will I receive cashout?<br>• Can I participate daily?<br>• What if I win a match?</p>
   </div>
 
   <div class="section">
@@ -186,10 +205,10 @@
     </a>
   </div>
 
-  <!-- Firebase -->
+  <!-- Firebase Script -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -205,15 +224,28 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
+    function logout() {
+      signOut(auth).then(() => {
+        window.location.href = "index.html";
+      });
+    }
+
+    window.logout = logout;
+
     onAuthStateChanged(auth, async (user) => {
       if (user) {
+        const uid = user.uid;
         document.getElementById("user-name").textContent = user.displayName;
         document.getElementById("user-email").textContent = user.email;
         document.getElementById("user-pic").src = user.photoURL;
+        document.getElementById("ref-code").value = uid.substring(0, 6).toUpperCase();
+        document.getElementById("ref-link").value = `${window.location.origin}/index.html?ref=${uid}`;
 
-        const userDoc = await getDoc(doc(db, "users", user.uid));
-        if (userDoc.exists()) {
-          const balance = userDoc.data().balance || 0;
+        const userRef = doc(db, "users", uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          const data = userSnap.data();
+          const balance = data.balance || 0;
           document.getElementById("user-balance").textContent = `₹${balance.toFixed(2)}`;
         }
       } else {
