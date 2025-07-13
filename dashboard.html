@@ -1,117 +1,178 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SLJR Dashboard</title>
+  <title>Dashboard - SLJR E-Sports</title>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <style>
     body {
       margin: 0;
       font-family: 'Press Start 2P', monospace;
       background: #fff;
-      color: #333;
-      padding: 20px;
-      text-align: center;
+      color: #000;
+      padding-bottom: 90px;
     }
 
-    .profile-pic {
+    .header {
+      background: #fff;
+      text-align: center;
+      padding: 14px;
+      border-bottom: 1px solid #ccc;
+    }
+
+    .header h1 {
+      font-size: 0.9rem;
+      margin: 0;
+      color: #ff6600;
+    }
+
+    .profile {
+      text-align: center;
+      padding: 20px;
+    }
+
+    .profile img {
       width: 80px;
       height: 80px;
       border-radius: 50%;
-      border: 3px solid #ff6600;
+      border: 2px solid #ff6600;
       margin-bottom: 10px;
     }
 
-    h2 {
-      color: #ff6600;
-      font-size: 0.9rem;
-    }
-
-    p {
+    .profile h2 {
       font-size: 0.6rem;
       margin: 5px 0;
     }
 
-    .section {
-      background: #fff3e0;
-      border: 1px solid #ffcc80;
-      padding: 15px;
-      border-radius: 10px;
-      margin: 20px 0;
+    .profile p {
+      font-size: 0.5rem;
+      color: #555;
     }
 
-    .section h3 {
-      font-size: 0.75rem;
+    .referral, .faq {
+      padding: 15px 20px;
+    }
+
+    .referral h3, .faq h3 {
+      font-size: 0.6rem;
       color: #ff6600;
       margin-bottom: 10px;
     }
 
-    .ref-link {
+    .referral code, .referral input {
       font-size: 0.5rem;
-      word-break: break-all;
-    }
-
-    .copy-btn, .logout-btn {
-      margin-top: 10px;
-      padding: 8px 14px;
-      font-size: 0.6rem;
-      font-family: 'Press Start 2P', monospace;
-      border: none;
+      background: #f5f5f5;
+      padding: 8px;
       border-radius: 6px;
-      cursor: pointer;
+      border: 1px solid #ccc;
+      width: 100%;
+      margin-bottom: 8px;
+      display: block;
     }
 
-    .copy-btn {
-      background: #ff6600;
-      color: white;
+    .faq p {
+      font-size: 0.45rem;
+      margin-bottom: 10px;
     }
 
     .logout-btn {
-      background: black;
+      background: #ff6600;
       color: white;
+      border: none;
+      font-size: 0.6rem;
+      padding: 10px 20px;
+      border-radius: 10px;
+      margin: 20px auto;
+      display: block;
+      font-family: 'Press Start 2P', monospace;
+      cursor: pointer;
     }
 
-    .wallet {
-      font-size: 0.8rem;
-      color: green;
+    .navbar {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: white;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+      border-top: 1px solid #ccc;
+      z-index: 999;
     }
 
-    .ref-earn {
-      font-size: 0.55rem;
-      color: #222;
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 0.5rem;
+      color: #333;
+    }
+
+    .nav-item img {
+      width: 22px;
+      height: 22px;
+      margin-bottom: 4px;
+    }
+
+    .active {
+      color: orange;
     }
   </style>
 </head>
 <body>
 
-  <img id="photo" class="profile-pic" src="" alt="Profile">
-  <h2 id="name">Loading...</h2>
-  <p id="email">Loading...</p>
-
-  <p class="wallet">Wallet Balance: ₹<span id="wallet">--</span></p>
-
-  <div class="section">
-    <h3>Referral Program</h3>
-    <p>Your Code: <span id="ref-code">--</span></p>
-    <p class="ref-link" id="ref-link">Generating...</p>
-    <button class="copy-btn" onclick="copyReferral()">Copy Link</button>
-    <p class="ref-earn" id="ref-earned">Referral Earnings: ₹--</p>
+  <div class="header">
+    <h1>SLJR Dashboard</h1>
   </div>
 
-  <div class="section">
-    <h3>Contact</h3>
-    <p>support@sljr-esports.com</p>
-    <p>Instagram: @sljr_esports</p>
+  <div class="profile">
+    <img id="userPhoto" src="profile.png" alt="User Photo" />
+    <h2 id="userName">Loading...</h2>
+    <p id="userEmail">---</p>
   </div>
 
-  <button class="logout-btn" onclick="logout()">Logout</button>
+  <div class="referral">
+    <h3>Your Referral Code:</h3>
+    <code id="refCode">---</code>
+    <h3>Referral Link:</h3>
+    <input type="text" id="refLink" readonly />
+  </div>
 
-  <!-- Firebase -->
+  <div class="faq">
+    <h3>How to Participate?</h3>
+    <p>1. Login using Google.</p>
+    <p>2. Join available tournaments.</p>
+    <p>3. Submit your game ID & play.</p>
+    <p>4. Earn rewards based on performance.</p>
+    <h3>Need Help?</h3>
+    <p>Email: support@sljr-esports.com</p>
+  </div>
+
+  <button class="logout-btn" onclick="logout()">LOGOUT</button>
+
+  <div class="navbar">
+    <div class="nav-item" onclick="location.href='home.html'">
+      <img src="home.png" alt="Home"/>
+      Home
+    </div>
+    <div class="nav-item" onclick="location.href='redeem.html'">
+      <img src="wallet.png" alt="Wallet"/>
+      Wallet
+    </div>
+    <div class="nav-item active" onclick="location.href='dashboard.html'">
+      <img src="profile.png" alt="Dashboard"/>
+      Dashboard
+    </div>
+    <div class="nav-item" onclick="location.href='match-history.html'">
+      <img src="game-history.png" alt="Match History"/>
+      History
+    </div>
+  </div>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyA0Qhb6FpIGKqWHwo-0pOvvX7bBRh-9FHY",
@@ -119,53 +180,31 @@
       projectId: "sljr-e-sports",
       storageBucket: "sljr-e-sports.firebasestorage.app",
       messagingSenderId: "568709951241",
-      appId: "1:568709951241:web:75498cdedbc058c06e2dd8",
-      measurementId: "G-QQ7MWDW2VD"
+      appId: "1:568709951241:web:75498cdedbc058c06e2dd8"
     };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const db = getFirestore(app);
 
-    onAuthStateChanged(auth, async (user) => {
+    function logout() {
+      signOut(auth).then(() => {
+        window.location.href = "index.html";
+      });
+    }
+
+    onAuthStateChanged(auth, (user) => {
       if (!user) {
         window.location.href = "index.html";
         return;
       }
 
-      document.getElementById("photo").src = user.photoURL;
-      document.getElementById("name").innerText = user.displayName;
-      document.getElementById("email").innerText = user.email;
-
-      const userRef = doc(db, "users", user.uid);
-      const snap = await getDoc(userRef);
-
-      if (snap.exists()) {
-        const data = snap.data();
-        const refCode = data.referralCode || "--";
-        const wallet = data.wallet || 0;
-        const refLink = `https://sljr-esports.web.app/index.html?ref=${refCode}`;
-
-        document.getElementById("wallet").innerText = wallet;
-        document.getElementById("ref-code").innerText = refCode;
-        document.getElementById("ref-link").innerText = refLink;
-
-        // Referral Earnings Count
-        const q = query(collection(db, "users"), where("referredBy", "==", refCode));
-        const refs = await getDocs(q);
-        const earnings = refs.size * 15;
-        document.getElementById("ref-earned").innerText = `Referral Earnings: ₹${earnings}`;
-      }
+      document.getElementById("userPhoto").src = user.photoURL || "profile.png";
+      document.getElementById("userName").textContent = user.displayName || "No Name";
+      document.getElementById("userEmail").textContent = user.email;
+      document.getElementById("refCode").textContent = user.uid;
+      document.getElementById("refLink").value = `${window.location.origin}/index.html?ref=${user.uid}`;
     });
-
-    window.copyReferral = function () {
-      const text = document.getElementById("ref-link").innerText;
-      navigator.clipboard.writeText(text).then(() => alert("Referral link copied!"));
-    };
-
-    window.logout = function () {
-      signOut(auth).then(() => window.location.href = "index.html");
-    };
   </script>
+
 </body>
 </html>
