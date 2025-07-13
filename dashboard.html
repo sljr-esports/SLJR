@@ -4,175 +4,162 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Dashboard - SLJR E-Sports</title>
+
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
   <style>
     body {
       margin: 0;
       font-family: 'Press Start 2P', monospace;
-      background: #fff;
-      color: #000;
-      padding-bottom: 90px;
+      background-color: #ffffff;
+      color: #222;
+      padding: 16px;
+      text-align: center;
     }
 
     .header {
-      background: #fff;
-      text-align: center;
-      padding: 14px;
-      border-bottom: 1px solid #ccc;
-    }
-
-    .header h1 {
-      font-size: 0.9rem;
-      margin: 0;
+      font-size: 1.1rem;
       color: #ff6600;
+      margin-bottom: 20px;
     }
 
     .profile {
-      text-align: center;
-      padding: 20px;
+      margin: 20px 0;
     }
 
     .profile img {
       width: 80px;
       height: 80px;
       border-radius: 50%;
-      border: 2px solid #ff6600;
-      margin-bottom: 10px;
-    }
-
-    .profile h2 {
-      font-size: 0.6rem;
-      margin: 5px 0;
+      box-shadow: 2px 2px 6px #888;
     }
 
     .profile p {
-      font-size: 0.5rem;
-      color: #555;
-    }
-
-    .referral, .faq {
-      padding: 15px 20px;
-    }
-
-    .referral h3, .faq h3 {
       font-size: 0.6rem;
-      color: #ff6600;
-      margin-bottom: 10px;
+      margin: 6px 0;
     }
 
-    .referral code, .referral input {
-      font-size: 0.5rem;
-      background: #f5f5f5;
-      padding: 8px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
+    .wallet-info, .referral-box {
+      background: #f9f9f9;
+      padding: 16px;
+      margin-top: 16px;
+      border-radius: 12px;
+      box-shadow: 2px 2px 6px #ccc;
+      font-size: 0.55rem;
+    }
+
+    .referral-box input {
       width: 100%;
-      margin-bottom: 8px;
-      display: block;
+      font-size: 0.5rem;
+      padding: 6px;
+      margin-top: 6px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-family: monospace;
     }
 
-    .faq p {
-      font-size: 0.45rem;
-      margin-bottom: 10px;
-    }
-
-    .logout-btn {
-      background: #ff6600;
+    button, .referral-btn {
+      margin-top: 12px;
+      background-color: #ff6600;
       color: white;
       border: none;
-      font-size: 0.6rem;
-      padding: 10px 20px;
-      border-radius: 10px;
-      margin: 20px auto;
-      display: block;
-      font-family: 'Press Start 2P', monospace;
+      padding: 10px 16px;
+      font-size: 0.5rem;
+      border-radius: 8px;
       cursor: pointer;
+      font-family: 'Press Start 2P', monospace;
+      box-shadow: 2px 2px 0 #000;
+      transition: 0.3s;
     }
 
-    .navbar {
+    button:hover {
+      background-color: #ff8533;
+      box-shadow: 0 0 10px #ff6600;
+    }
+
+    .nav {
       position: fixed;
       bottom: 0;
+      left: 0;
       width: 100%;
       background: white;
+      border-top: 1px solid #ddd;
       display: flex;
       justify-content: space-around;
-      padding: 10px 0;
-      border-top: 1px solid #ccc;
-      z-index: 999;
+      padding: 8px 0;
     }
 
-    .nav-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      font-size: 0.5rem;
-      color: #333;
-    }
-
-    .nav-item img {
+    .nav img {
       width: 22px;
       height: 22px;
-      margin-bottom: 4px;
+      opacity: 0.7;
     }
 
-    .active {
-      color: orange;
+    .nav img.active {
+      opacity: 1;
+      border-bottom: 2px solid orange;
+    }
+
+    .footer {
+      font-size: 0.45rem;
+      margin-top: 24px;
+      color: #aaa;
     }
   </style>
 </head>
 <body>
 
-  <div class="header">
-    <h1>SLJR Dashboard</h1>
-  </div>
+  <div class="header">SLJR E-SPORTS DASHBOARD</div>
 
   <div class="profile">
-    <img id="userPhoto" src="profile.png" alt="User Photo" />
-    <h2 id="userName">Loading...</h2>
-    <p id="userEmail">---</p>
+    <img id="profilePic" src="" alt="Profile" />
+    <p id="userName">User</p>
+    <p id="userEmail">Email</p>
   </div>
 
-  <div class="referral">
-    <h3>Your Referral Code:</h3>
-    <code id="refCode">---</code>
-    <h3>Referral Link:</h3>
+  <div class="wallet-info">
+    <p><strong>Wallet Balance:</strong> ₹<span id="walletBalance">0</span></p>
+    <p><strong>Referral Earnings:</strong> ₹<span id="refEarnings">0</span></p>
+  </div>
+
+  <div class="referral-box">
+    <p><strong>Your Referral Code:</strong> <span id="refCode">Loading...</span></p>
+    <p><strong>Referral Link:</strong></p>
     <input type="text" id="refLink" readonly />
+    <button onclick="copyReferral()">📋 Copy Link</button>
   </div>
 
-  <div class="faq">
-    <h3>How to Participate?</h3>
-    <p>1. Login using Google.</p>
-    <p>2. Join available tournaments.</p>
-    <p>3. Submit your game ID & play.</p>
-    <p>4. Earn rewards based on performance.</p>
-    <h3>Need Help?</h3>
-    <p>Email: support@sljr-esports.com</p>
+  <button onclick="location.href='referral.html'" class="referral-btn">🎯 My Referral</button>
+  <button onclick="logout()">🚪 Logout</button>
+
+  <div class="nav">
+    <a href="home.html"><img src="home.png" class="active" /></a>
+    <a href="redeem.html"><img src="wallet.png" /></a>
+    <a href="dashboard.html"><img src="profile.png" /></a>
+    <a href="match-history.html"><img src="game-history.png" /></a>
   </div>
 
-  <button class="logout-btn" onclick="logout()">LOGOUT</button>
-
-  <div class="navbar">
-    <div class="nav-item" onclick="location.href='home.html'">
-      <img src="home.png" alt="Home"/>
-      Home
-    </div>
-    <div class="nav-item" onclick="location.href='redeem.html'">
-      <img src="wallet.png" alt="Wallet"/>
-      Wallet
-    </div>
-    <div class="nav-item active" onclick="location.href='dashboard.html'">
-      <img src="profile.png" alt="Dashboard"/>
-      Dashboard
-    </div>
-    <div class="nav-item" onclick="location.href='match-history.html'">
-      <img src="game-history.png" alt="Match History"/>
-      History
-    </div>
-  </div>
+  <div class="footer">© SLJR E-Sports | Powered by Firebase</div>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      initializeApp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      getFirestore,
+      doc,
+      getDoc,
+      setDoc,
+      collection,
+      query,
+      where,
+      getDocs
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyA0Qhb6FpIGKqWHwo-0pOvvX7bBRh-9FHY",
@@ -185,26 +172,55 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const db = getFirestore(app);
 
-    function logout() {
-      signOut(auth).then(() => {
-        window.location.href = "index.html";
-      });
-    }
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) return location.href = "index.html";
 
-    onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        window.location.href = "index.html";
-        return;
+      document.getElementById("profilePic").src = user.photoURL;
+      document.getElementById("userName").innerText = user.displayName;
+      document.getElementById("userEmail").innerText = user.email;
+
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef);
+
+      if (userSnap.exists()) {
+        const data = userSnap.data();
+
+        document.getElementById("walletBalance").innerText = data.balance ?? 0;
+        document.getElementById("refCode").innerText = user.uid;
+        const refLink = `${location.origin}/index.html?ref=${user.uid}`;
+        document.getElementById("refLink").value = refLink;
+
+        // Referral Earnings
+        const q = query(collection(db, "users"), where("refBy", "==", user.uid));
+        const snap = await getDocs(q);
+        const refEarnings = snap.size * 15;
+        document.getElementById("refEarnings").innerText = refEarnings;
+
+        // Optional: Save in Firestore
+        if ((data.refEarnings ?? 0) !== refEarnings) {
+          await setDoc(userRef, {
+            ...data,
+            refEarnings
+          });
+        }
       }
-
-      document.getElementById("userPhoto").src = user.photoURL || "profile.png";
-      document.getElementById("userName").textContent = user.displayName || "No Name";
-      document.getElementById("userEmail").textContent = user.email;
-      document.getElementById("refCode").textContent = user.uid;
-      document.getElementById("refLink").value = `${window.location.origin}/index.html?ref=${user.uid}`;
     });
-  </script>
 
+    window.copyReferral = function () {
+      const link = document.getElementById("refLink");
+      link.select();
+      link.setSelectionRange(0, 99999);
+      document.execCommand("copy");
+      alert("Referral link copied!");
+    };
+
+    window.logout = function () {
+      signOut(auth).then(() => {
+        location.href = "index.html";
+      });
+    };
+  </script>
 </body>
 </html>
