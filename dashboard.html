@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard - SLJR E-Sports</title>
+
+  <!-- Pixel Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyA0Qhb6FpIGKqWHwo-0pOvvX7bBRh-9FHY",
+      authDomain: "sljr-e-sports.firebaseapp.com",
+      projectId: "sljr-e-sports",
+      storageBucket: "sljr-e-sports.firebasestorage.app",
+      messagingSenderId: "568709951241",
+      appId: "1:568709951241:web:75498cdedbc058c06e2dd8",
+      measurementId: "G-QQ7MWDW2VD"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const userName = document.getElementById("user-name");
+    const userBalance = document.getElementById("user-balance");
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const uid = user.uid;
+        const docRef = doc(db, "users", uid);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          userName.innerText = data.name || user.displayName || "Player";
+          userBalance.innerText = data.balance?.toFixed(2) || "0.00";
+        } else {
+          userName.innerText = user.displayName || "Player";
+          userBalance.innerText = "0.00";
+        }
+      } else {
+        window.location.href = "login.html";
+      }
+    });
+  </script>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #fff;
+      font-family: 'Press Start 2P', monospace;
+      color: #000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    header {
+      width: 100%;
+      background-color: #ff6600;
+      color: white;
+      padding: 16px 0;
+      text-align: center;
+      font-size: 0.8rem;
+      text-shadow: 1px 1px 0 #000;
+      border-bottom: 3px solid #000;
+    }
+
+    .user-info {
+      margin: 20px 0;
+      font-size: 0.6rem;
+      text-align: center;
+    }
+
+    .balance {
+      font-size: 0.7rem;
+      margin: 10px 0;
+      color: #00cfff;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 20px;
+      margin: 20px 0;
+    }
+
+    .action-btn {
+      font-size: 0.55rem;
+      padding: 10px 16px;
+      border: 2px solid #ff6600;
+      background-color: #fff;
+      color: #ff6600;
+      border-radius: 6px;
+      cursor: pointer;
+      box-shadow: 2px 2px 0px #000;
+      transition: all 0.3s ease;
+    }
+
+    .action-btn:hover {
+      background-color: #ff6600;
+      color: #fff;
+      box-shadow: 0 0 6px #ff6600;
+    }
+
+    .card-section {
+      width: 90%;
+      max-width: 500px;
+      margin-bottom: 80px;
+    }
+
+    .card {
+      border: 1px solid #000;
+      border-radius: 8px;
+      padding: 14px;
+      margin: 10px 0;
+      background-color: #f5f5f5;
+      box-shadow: 2px 2px 0px #000;
+      font-size: 0.55rem;
+    }
+
+    footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: #fff;
+      border-top: 2px solid #000;
+      display: flex;
+      justify-content: space-around;
+      padding: 8px 0;
+    }
+
+    footer img {
+      width: 24px;
+      height: 24px;
+      opacity: 0.8;
+    }
+
+    footer img.active {
+      opacity: 1;
+      border-bottom: 2px solid #ff6600;
+    }
+  </style>
+</head>
+<body>
+
+  <header>SLJR E-SPORTS DASHBOARD</header>
+
+  <div class="user-info">
+    Welcome, <span id="user-name">...</span><br/>
+    <div class="balance">Balance: ₹<span id="user-balance">...</span></div>
+  </div>
+
+  <div class="button-group">
+    <button class="action-btn">Deposit</button>
+    <button class="action-btn">Cashout</button>
+  </div>
+
+  <div class="card-section">
+    <div class="card">🎮 Game Reward: Free Fire Max<br/>💰 Prize Earned: ₹500</div>
+    <div class="card">➕ Deposit: ₹300<br/>🕒 Date: 2025-07-12</div>
+    <div class="card">➖ Withdrawal: ₹200<br/>🕒 Date: 2025-07-10</div>
+  </div>
+
+  <footer>
+    <img src="home.png" class="active" alt="Home">
+    <img src="wallet.png" alt="Wallet">
+    <img src="profile.png" alt="Profile">
+    <img src="game-history.png" alt="History">
+  </footer>
+
+</body>
+</html>
