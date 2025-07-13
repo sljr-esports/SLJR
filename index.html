@@ -1,65 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SLJR E-Sports | Login</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SLJR E-Sports Login</title>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-
   <style>
     body {
       margin: 0;
       font-family: 'Press Start 2P', monospace;
-      background: #fff;
+      background: #ffffff;
       height: 100vh;
-      overflow: hidden;
       display: flex;
       flex-direction: column;
-      justify-content: center;
       align-items: center;
+      justify-content: center;
       text-align: center;
     }
-
     h1 {
-      margin: 5px 0;
-      animation: fadeInUp 1s ease forwards;
-      opacity: 0;
+      margin: 10px 0;
     }
-
-    h1:nth-child(1) {
-      font-size: 1rem;
-      color: #ff6600;
-      -webkit-text-stroke: 1px #000;
-      animation-delay: 0.2s;
-    }
-
-    h1:nth-child(2) {
-      font-size: 0.9rem;
-      color: #000;
-      -webkit-text-stroke: 1px #888;
-      animation-delay: 0.5s;
-    }
-
-    h1:nth-child(3) {
-      font-size: 1rem;
-      color: #00bfff;
-      -webkit-text-stroke: 1px #000;
-      animation-delay: 0.8s;
-    }
-
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(40px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
     .login-btn {
-      margin-top: 40px;
       background-color: white;
       border: 2px solid #ff6600;
       border-radius: 8px;
@@ -71,21 +31,18 @@
       display: inline-flex;
       align-items: center;
       gap: 10px;
-      transition: all 0.3s ease;
       box-shadow: 3px 3px 0px #000;
+      margin-top: 20px;
     }
-
     .login-btn:hover {
       background-color: #ff6600;
       color: white;
       box-shadow: 0 0 10px #ff6600;
     }
-
     .login-btn img {
       width: 16px;
       height: 16px;
     }
-
     .footer {
       position: absolute;
       bottom: 15px;
@@ -95,23 +52,17 @@
   </style>
 </head>
 <body>
-
   <h1>SLJR E-SPORTS</h1>
   <h1>TOURNAMENT</h1>
-  <h1>FOR GEN-Z</h1>
-
+  <h1 style="color:#00cfff">FOR GEN-Z</h1>
   <button class="login-btn" onclick="googleLogin()">
     <img src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Google_Icon.png" alt="Google" />
     SIGN IN WITH GOOGLE
   </button>
-
-  <div class="footer">🚀 Invite Friends & Earn ₹15</div>
-
-  <!-- Firebase Logic -->
-  <script type="module">
+  <div class="footer">🚀 Enter the Arena | SLJR Gaming</div>  <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyA0Qhb6FpIGKqWHwo-0pOvvX7bBRh-9FHY",
@@ -119,62 +70,47 @@
       projectId: "sljr-e-sports",
       storageBucket: "sljr-e-sports.firebasestorage.app",
       messagingSenderId: "568709951241",
-      appId: "1:568709951241:web:75498cdedbc058c06e2dd8",
-      measurementId: "G-QQ7MWDW2VD"
+      appId: "1:568709951241:web:75498cdedbc058c06e2dd8"
     };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const provider = new GoogleAuthProvider();
     const db = getFirestore(app);
+    const provider = new GoogleAuthProvider();
 
-    function generateReferralCode(uid) {
-      return "SLJR" + uid.slice(-4).toUpperCase();
-    }
+    const getDeviceId = () => {
+      let id = localStorage.getItem("deviceId");
+      if (!id) {
+        id = crypto.randomUUID();
+        localStorage.setItem("deviceId", id);
+      }
+      return id;
+    };
 
     window.googleLogin = async function () {
       try {
         const result = await signInWithPopup(auth, provider);
         const user = result.user;
-        const userRef = doc(db, "users", user.uid);
-        const snap = await getDoc(userRef);
+        const uid = user.uid;
+        const deviceId = getDeviceId();
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const referredBy = urlParams.get("ref") || null;
-        const referralCode = generateReferralCode(user.uid);
+        const userRef = doc(db, "users", uid);
+        const docSnap = await getDoc(userRef);
 
-        if (!snap.exists()) {
-          let walletAmount = 0;
-
-          if (referredBy) walletAmount = 10;
-
-          await setDoc(userRef, {
-            name: user.displayName,
-            email: user.email,
-            photo: user.photoURL,
-            wallet: walletAmount,
-            referralCode: referralCode,
-            referredBy: referredBy
-          });
-
-          if (referredBy) {
-            const q = query(collection(db, "users"), where("referralCode", "==", referredBy));
-            const refSnap = await getDocs(q);
-            refSnap.forEach(async (refDoc) => {
-              const refUserRef = doc(db, "users", refDoc.id);
-              const refData = refDoc.data();
-              const newWallet = (refData.wallet || 0) + 15;
-              await updateDoc(refUserRef, { wallet: newWallet });
-            });
+        if (!docSnap.exists()) {
+          await setDoc(userRef, { email: user.email, deviceId });
+          window.location.href = "home.html";
+        } else {
+          const storedId = docSnap.data().deviceId;
+          if (storedId === deviceId) {
+            window.location.href = "home.html";
+          } else {
+            alert("This account is already used on another device.");
           }
         }
-
-        window.location.href = "home.html";
       } catch (error) {
         alert("Login failed: " + error.message);
       }
     };
-  </script>
-
-</body>
+  </script></body>
 </html>
