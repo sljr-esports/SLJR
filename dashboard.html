@@ -51,6 +51,16 @@
       margin: 0;
     }
 
+    .balance {
+      margin: 10px auto;
+      background: #ff6600;
+      color: white;
+      padding: 10px;
+      width: fit-content;
+      border-radius: 10px;
+      font-size: 0.7rem;
+    }
+
     .section {
       padding: 10px 20px;
     }
@@ -132,20 +142,24 @@
     <p id="user-email">Loading...</p>
   </div>
 
+  <div class="balance" id="user-balance">
+    ₹0.00
+  </div>
+
   <div class="section">
     <h3>HOW TO PARTICIPATE?</h3>
-    <p>Choose a game from the Home page, enter your Game ID, pay entry (if needed), and wait for results in Match History.</p>
+    <p>Select a game from Home, enter your Game ID, submit entry, and track matches in Match History.</p>
   </div>
 
   <div class="section">
     <h3>REFERRAL PROGRAM</h3>
-    <p>Share your referral code to earn ₹15 per signup. New users get ₹10 instantly!</p>
+    <p>Refer friends and earn ₹15 per user. New users get ₹10 instantly.</p>
     <a href="refferal.html" class="button">My Referral</a>
   </div>
 
   <div class="section">
     <h3>FREQUENTLY ASKED QUESTIONS</h3>
-    <p>• How do I win rewards?<br>• When will I receive my cashout?<br>• Can I withdraw anytime?</p>
+    <p>• How do I get rewards?<br>• When will I receive my cashout?<br>• Can I participate daily?</p>
   </div>
 
   <div class="section">
@@ -176,6 +190,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyA0Qhb6FpIGKqWHwo-0pOvvX7bBRh-9FHY",
@@ -188,12 +203,19 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const db = getFirestore(app);
 
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
       if (user) {
         document.getElementById("user-name").textContent = user.displayName;
         document.getElementById("user-email").textContent = user.email;
         document.getElementById("user-pic").src = user.photoURL;
+
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+          const balance = userDoc.data().balance || 0;
+          document.getElementById("user-balance").textContent = `₹${balance.toFixed(2)}`;
+        }
       } else {
         window.location.href = "index.html";
       }
