@@ -1,12 +1,139 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Match History - SLJR E-Sports</title>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">  <!-- Firebase -->  <script type="module">
+  <meta charset="UTF-8" />
+  <title>Match History - SLJR</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Press Start 2P', monospace;
+      background: #fff;
+      color: #222;
+      padding-bottom: 80px;
+    }
+
+    header {
+      text-align: center;
+      padding: 15px 0;
+      border-bottom: 2px solid #ff6600;
+      background: white;
+    }
+
+    header h1 {
+      font-size: 1rem;
+      color: #ff6600;
+      margin: 0;
+    }
+
+    .history-list {
+      padding: 20px;
+    }
+
+    .match-card {
+      border: 2px solid #ff6600;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 18px;
+      background: #fff5e6;
+    }
+
+    .match-card h2 {
+      font-size: 0.75rem;
+      color: #ff6600;
+      margin: 0 0 10px;
+    }
+
+    .match-card p {
+      font-size: 0.55rem;
+      margin: 4px 0;
+    }
+
+    .summary-btn {
+      margin-top: 10px;
+      padding: 8px 14px;
+      border: 2px solid #ff6600;
+      background-color: white;
+      color: #ff6600;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.55rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .summary-btn:hover {
+      background-color: #ff6600;
+      color: white;
+      box-shadow: 0 0 6px #ff6600;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: white;
+      border-top: 1px solid #ddd;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      height: 60px;
+      z-index: 100;
+    }
+
+    .bottom-nav a {
+      text-align: center;
+      font-size: 0.55rem;
+      color: #222;
+      text-decoration: none;
+    }
+
+    .bottom-nav a.active {
+      color: #ff6600;
+    }
+
+    .bottom-nav img {
+      width: 22px;
+      height: 22px;
+      margin-bottom: 2px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>SLJR E-SPORTS</h1>
+  </header>
+
+  <div class="history-list" id="historyList">
+    <!-- Match history will be appended here -->
+  </div>
+
+  <div class="bottom-nav">
+    <a href="home.html">
+      <img src="home.png" alt="Home" />
+      <div>Home</div>
+    </a>
+    <a href="redeem.html">
+      <img src="wallet.png" alt="Wallet" />
+      <div>Wallet</div>
+    </a>
+    <a href="dashboard.html">
+      <img src="profile.png" alt="Dashboard" />
+      <div>Dashboard</div>
+    </a>
+    <a href="match-history.html" class="active">
+      <img src="game-history.png" alt="History" />
+      <div>History</div>
+    </a>
+  </div>
+
+  <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyA0Qhb6FpIGKqWHwo-0pOvvX7bBRh-9FHY",
@@ -14,128 +141,60 @@
       projectId: "sljr-e-sports",
       storageBucket: "sljr-e-sports.firebasestorage.app",
       messagingSenderId: "568709951241",
-      appId: "1:568709951241:web:75498cdedbc058c06e2dd8",
-      measurementId: "G-QQ7MWDW2VD"
+      appId: "1:568709951241:web:75498cdedbc058c06e2dd8"
     };
 
     const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
     const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    const historyList = document.getElementById("historyList");
 
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
         window.location.href = "index.html";
-      } else {
-        const q = query(collection(db, "matchHistory"), where("uid", "==", user.uid));
-        const querySnapshot = await getDocs(q);
-        const list = document.getElementById("history");
-        list.innerHTML = "";
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
-          const li = document.createElement("li");
-          li.textContent = `${data.date} | Game ID: ${data.gameId} | Result: ${data.result}`;
-          list.appendChild(li);
-        });
+        return;
+      }
+
+      const querySnapshot = await getDocs(collection(db, "tournaments"));
+      let hasMatch = false;
+
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        const participants = data.participants || [];
+
+        if (participants.includes(user.uid)) {
+          hasMatch = true;
+          const rank = data.ranks && data.ranks[user.uid] ? data.ranks[user.uid] : null;
+          const totalPlayers = participants.length;
+          const myRankDisplay = rank ? `#${rank} of ${totalPlayers}` : "Pending";
+
+          const div = document.createElement("div");
+          div.className = "match-card";
+          div.innerHTML = `
+            <h2>${data.gameID || "Unknown ID"}</h2>
+            <p><strong>Game:</strong> ${data.game}</p>
+            <p><strong>Type:</strong> ${data.type}</p>
+            <p><strong>Entry Fee:</strong> ₹${data.entryFee}</p>
+            <p><strong>Prize Pool:</strong> ₹${data.prizePool}</p>
+            <p><strong>Date:</strong> ${data.date}</p>
+            <p><strong>Time:</strong> ${data.time}</p>
+            <p><strong>My Rank:</strong> ${myRankDisplay}</p>
+            <button class="summary-btn" onclick="viewSummary('${doc.id}')">View Game Summary</button>
+          `;
+          historyList.appendChild(div);
+        }
+      });
+
+      if (!hasMatch) {
+        historyList.innerHTML = `<p style="font-size: 0.6rem; color: #888; text-align: center;">No matches joined yet.</p>`;
       }
     });
-  </script>  <style>
-    body {
-      margin: 0;
-      font-family: 'Press Start 2P', monospace;
-      background: #fff;
-      padding-bottom: 80px;
-    }
 
-    header {
-      background: white;
-      padding: 10px 0;
-      text-align: center;
-      border-bottom: 2px solid orange;
-    }
+    window.viewSummary = function(gameId) {
+      window.location.href = `game-summary.html?gameId=${gameId}`;
+    };
+  </script>
 
-    header h1 {
-      color: #ff6600;
-      font-size: 1rem;
-      margin: 0;
-    }
-
-    .container {
-      padding: 20px;
-      text-align: center;
-    }
-
-    h2 {
-      font-size: 0.7rem;
-      color: #222;
-    }
-
-    ul {
-      list-style: none;
-      padding: 0;
-      font-size: 0.6rem;
-    }
-
-    li {
-      padding: 10px;
-      margin: 5px 0;
-      background: #f5f5f5;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-    }
-
-    .nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      background: white;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      padding: 10px 0;
-      border-top: 1px solid #ddd;
-      z-index: 999;
-    }
-
-    .nav-icon {
-      width: 24px;
-      height: 24px;
-      opacity: 0.7;
-      transition: all 0.3s ease;
-    }
-
-    .nav-icon.active {
-      opacity: 1;
-      border-bottom: 2px solid orange;
-      border-radius: 4px;
-    }
-  </style></head>
-<body>
-  <header>
-    <h1>SLJR E-SPORTS</h1>
-  </header>  <div class="container">
-    <h2>Match History</h2>
-    <ul id="history">
-      <li>Loading...</li>
-    </ul>
-  </div>  <div class="nav">
-    <a href="home.html">
-      <img src="home.png" alt="Home" class="nav-icon" id="home-icon" />
-    </a>
-    <a href="redeem.html">
-      <img src="wallet.png" alt="Wallet" class="nav-icon" id="wallet-icon" />
-    </a>
-    <a href="dashboard.html">
-      <img src="profile.png" alt="Dashboard" class="nav-icon" id="dashboard-icon" />
-    </a>
-    <a href="match-history.html">
-      <img src="game-history.png" alt="Match History" class="nav-icon" id="history-icon" />
-    </a>
-  </div>  <script>
-    const path = window.location.pathname;
-    if (path.includes("home")) document.getElementById("home-icon")?.classList.add("active");
-    if (path.includes("redeem")) document.getElementById("wallet-icon")?.classList.add("active");
-    if (path.includes("dashboard")) document.getElementById("dashboard-icon")?.classList.add("active");
-    if (path.includes("match-history")) document.getElementById("history-icon")?.classList.add("active");
-  </script></body>
+</body>
 </html>
