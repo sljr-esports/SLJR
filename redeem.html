@@ -1,10 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>Redeem - SLJR</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
   <style>
     body {
       margin: 0;
@@ -12,137 +11,117 @@
       background: #ffffff;
       padding-bottom: 80px;
       color: #222;
-    }
+    }header {
+  text-align: center;
+  padding: 15px 0;
+  border-bottom: 2px solid #ff6600;
+  background: white;
+}
 
-    header {
-      text-align: center;
-      padding: 15px 0;
-      border-bottom: 2px solid #ff6600;
-      background: white;
-    }
+header h1 {
+  font-size: 1rem;
+  color: #ff6600;
+  margin: 0;
+}
 
-    header h1 {
-      font-size: 1rem;
-      color: #ff6600;
-      margin: 0;
-    }
+.balance-section {
+  text-align: center;
+  margin: 20px 0;
+}
 
-    .balance-section {
-      text-align: center;
-      margin: 25px 0;
-    }
+.balance-section h2 {
+  font-size: 0.7rem;
+  color: #000;
+  margin: 10px 0;
+}
 
-    .balance-section h2 {
-      font-size: 1rem;
-      color: #28a745;
-    }
+.button-group {
+  display: flex;
+  justify-content: space-around;
+  margin: 20px;
+}
 
-    .btn-group {
-      display: flex;
-      justify-content: center;
-      gap: 16px;
-      margin: 30px 0;
-    }
+.button-group button {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.5rem;
+  padding: 10px;
+  border: 2px solid #ff6600;
+  background: white;
+  color: #ff6600;
+  border-radius: 10px;
+  cursor: not-allowed;
+}
 
-    .btn-group button {
-      font-family: 'Press Start 2P', monospace;
-      font-size: 0.55rem;
-      padding: 10px 18px;
-      border: 2px solid #ff6600;
-      background: transparent;
-      border-radius: 6px;
-      color: #ff6600;
-      cursor: pointer;
-      transition: 0.3s ease;
-      box-shadow: 2px 2px 0px #000;
-    }
+.button-group button.deposit {
+  cursor: default;
+  opacity: 0.5;
+}
 
-    .btn-group button:hover {
-      background: #ff6600;
-      color: white;
-      transform: scale(1.05);
-      box-shadow: 0 0 8px #ff6600;
-    }
+.history-section {
+  padding: 0 20px;
+}
 
-    .transactions {
-      margin: 25px 20px;
-    }
+.history-section h3 {
+  font-size: 0.6rem;
+  margin-bottom: 10px;
+  color: #222;
+}
 
-    .transactions h3 {
-      font-size: 0.7rem;
-      margin-bottom: 12px;
-      color: #000;
-      border-left: 4px solid #ff6600;
-      padding-left: 10px;
-    }
+.history-entry {
+  font-size: 0.55rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
 
-    .transactions .item {
-      font-size: 0.6rem;
-      padding: 10px;
-      margin-bottom: 12px;
-      border: 1px dashed #ccc;
-      border-radius: 6px;
-      background: #f9f9f9;
-    }
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: white;
+  border-top: 1px solid #ddd;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  height: 60px;
+  z-index: 100;
+}
 
-    .transactions .item a {
-      color: #ff6600;
-      text-decoration: underline;
-    }
+.bottom-nav a {
+  text-align: center;
+  font-size: 0.55rem;
+  color: #222;
+  text-decoration: none;
+}
 
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      background: white;
-      border-top: 1px solid #ddd;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      height: 60px;
-      z-index: 100;
-    }
+.bottom-nav a.active {
+  color: #ff6600;
+}
 
-    .bottom-nav a {
-      text-align: center;
-      font-size: 0.55rem;
-      color: #222;
-      text-decoration: none;
-    }
+.bottom-nav img {
+  width: 22px;
+  height: 22px;
+  margin-bottom: 2px;
+}
 
-    .bottom-nav a.active {
-      color: #ff6600;
-    }
-
-    .bottom-nav img {
-      width: 22px;
-      height: 22px;
-      margin-bottom: 2px;
-    }
   </style>
 </head>
 <body>
-
   <header>
     <h1>SLJR E-SPORTS</h1>
-  </header>
-
-  <div class="balance-section">
-    <h2>Wallet Balance: ₹<span id="balance">0</span></h2>
-  </div>
-
-  <div class="btn-group">
-    <button onclick="cashout()">CASHOUT</button>
-    <button onclick="deposit()">DEPOSIT</button>
-  </div>
-
-  <div class="transactions">
+  </header>  <div class="balance-section">
+    <h2>Wallet Balance: ₹<span id="walletBalance">0</span></h2>
+  </div>  <div class="button-group">
+    <button class="deposit">Deposit (Coming Soon)</button>
+    <button onclick="window.location.href='cashout.html'">Cashout</button>
+  </div>  <div class="history-section">
     <h3>Game Reward History</h3>
-    <div id="history"></div>
-  </div>
-
-  <div class="bottom-nav">
+    <div id="historyList">
+      <p style="font-size: 0.5rem; color: gray">No rewards yet.</p>
+    </div>
+  </div>  <div class="bottom-nav">
     <a href="home.html">
       <img src="home.png" alt="Home" />
       <div>Home</div>
@@ -159,12 +138,10 @@
       <img src="game-history.png" alt="History" />
       <div>History</div>
     </a>
-  </div>
-
-  <script type="module">
+  </div>  <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyA0Qhb6FpIGKqWHwo-0pOvvX7bBRh-9FHY",
@@ -179,51 +156,15 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    const balanceEl = document.getElementById("balance");
-    const historyEl = document.getElementById("history");
-
     onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        const uid = user.uid;
-
-        // Get user balance
-        const userDoc = await getDoc(doc(db, "users", uid));
-        if (userDoc.exists()) {
-          balanceEl.textContent = userDoc.data().balance || 0;
-        }
-
-        // Get transactions
-        const txQuery = query(collection(db, "transactions"), where("uid", "==", uid));
-        const txSnap = await getDocs(txQuery);
-
-        if (txSnap.empty) {
-          historyEl.innerHTML = "<p style='font-size: 0.6rem;'>No transactions found.</p>";
-        } else {
-          txSnap.forEach(doc => {
-            const tx = doc.data();
-            const div = document.createElement("div");
-            div.className = "item";
-            div.innerHTML = `
-              <strong>${tx.type}</strong><br>
-              ₹${tx.amount} - ${tx.status || "Completed"}<br>
-              Game ID: <a href="game-stats.html?id=${tx.gameId}">${tx.gameId}</a><br>
-              ${new Date(tx.timestamp).toLocaleString()}
-            `;
-            historyEl.appendChild(div);
-          });
-        }
-      } else {
+      if (!user) {
         window.location.href = "index.html";
+        return;
+      }
+      const userDoc = await getDoc(doc(db, "users", user.uid));
+      if (userDoc.exists()) {
+        document.getElementById("walletBalance").innerText = userDoc.data().balance || 0;
       }
     });
-
-    window.cashout = function () {
-      alert("Cashout feature coming soon...");
-    }
-
-    window.deposit = function () {
-      alert("Deposit feature coming soon...");
-    }
-  </script>
-</body>
+  </script></body>
 </html>
