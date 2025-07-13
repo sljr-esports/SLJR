@@ -1,30 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SLJR E-Sports Login</title>
+  <title>SLJR E-Sports | Login</title>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 
   <style>
     body {
       margin: 0;
       font-family: 'Press Start 2P', monospace;
-      background: #ffffff;
+      background: #fff;
       height: 100vh;
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      align-items: center;
       justify-content: center;
+      align-items: center;
       text-align: center;
     }
 
     h1 {
-      margin: 12px 0;
-      padding: 10px 20px;
-      font-weight: bold;
+      margin: 5px 0;
+      animation: fadeInUp 1s ease forwards;
+      opacity: 0;
+    }
+
+    h1:nth-child(1) {
       font-size: 1rem;
+      color: #ff6600;
+      -webkit-text-stroke: 1px #000;
+      animation-delay: 0.2s;
+    }
+
+    h1:nth-child(2) {
+      font-size: 0.9rem;
+      color: #000;
+      -webkit-text-stroke: 1px #888;
+      animation-delay: 0.5s;
+    }
+
+    h1:nth-child(3) {
+      font-size: 1rem;
+      color: #00bfff;
+      -webkit-text-stroke: 1px #000;
+      animation-delay: 0.8s;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(40px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .login-btn {
@@ -74,9 +105,9 @@
     SIGN IN WITH GOOGLE
   </button>
 
-  <div class="footer">🚀 Invite Friends, Earn Rewards</div>
+  <div class="footer">🚀 Invite Friends & Earn ₹15</div>
 
-  <!-- Firebase & Auth -->
+  <!-- Firebase Logic -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -98,7 +129,7 @@
     const db = getFirestore(app);
 
     function generateReferralCode(uid) {
-      return "SLJR" + uid.slice(-4).toUpperCase();  // Ex: SLJR3A7B
+      return "SLJR" + uid.slice(-4).toUpperCase();
     }
 
     window.googleLogin = async function () {
@@ -130,8 +161,8 @@
             const q = query(collection(db, "users"), where("referralCode", "==", referredBy));
             const refSnap = await getDocs(q);
             refSnap.forEach(async (refDoc) => {
-              const refData = refDoc.data();
               const refUserRef = doc(db, "users", refDoc.id);
+              const refData = refDoc.data();
               const newWallet = (refData.wallet || 0) + 15;
               await updateDoc(refUserRef, { wallet: newWallet });
             });
