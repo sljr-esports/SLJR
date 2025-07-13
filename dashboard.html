@@ -8,15 +8,15 @@
   <style>
     body {
       margin: 0;
-      padding-bottom: 80px;
       font-family: 'Press Start 2P', monospace;
       background: #ffffff;
+      padding-bottom: 80px;
       color: #222;
     }
 
     header {
       text-align: center;
-      padding: 15px 0 10px;
+      padding: 15px 0;
       border-bottom: 2px solid #ff6600;
       background: white;
     }
@@ -24,100 +24,70 @@
     header h1 {
       font-size: 1rem;
       color: #ff6600;
+      margin: 0;
     }
 
-    .user-info {
+    .profile {
       text-align: center;
-      margin-top: 20px;
+      margin: 20px 0;
     }
 
-    .user-info img {
+    .profile img {
       width: 80px;
       height: 80px;
       border-radius: 50%;
       border: 2px solid #ff6600;
+      margin-bottom: 10px;
     }
 
-    .user-info h2 {
-      margin: 10px 0 5px;
-      font-size: 0.8rem;
-    }
-
-    .user-info p {
-      font-size: 0.6rem;
-      color: #666;
-    }
-
-    .balance {
-      text-align: center;
-      font-size: 0.9rem;
-      color: #28a745;
-      margin: 15px 0;
-    }
-
-    .referral {
-      border: 2px dashed #ff6600;
-      border-radius: 10px;
-      padding: 15px;
-      margin: 20px;
-      text-align: center;
-    }
-
-    .referral input {
-      width: 90%;
-      max-width: 300px;
-      padding: 8px;
+    .profile h2 {
+      font-size: 0.75rem;
       margin: 5px 0;
-      font-size: 0.6rem;
-      font-family: monospace;
-      border-radius: 6px;
-      border: 1px solid #ccc;
     }
 
-    button.copy-btn {
+    .profile p {
       font-size: 0.6rem;
-      margin-top: 5px;
-      background-color: #ff6600;
-      color: white;
-      border: none;
-      padding: 8px 12px;
-      border-radius: 6px;
-      cursor: pointer;
+      color: #555;
+      margin: 0;
     }
 
     .section {
-      margin: 20px;
+      padding: 10px 20px;
     }
 
     .section h3 {
-      font-size: 0.7rem;
+      font-size: 0.6rem;
       color: #ff6600;
-      margin-bottom: 5px;
+      margin-bottom: 10px;
+      border-left: 4px solid #ff6600;
+      padding-left: 8px;
     }
 
     .section p {
-      font-size: 0.6rem;
-      color: #444;
+      font-size: 0.55rem;
+      line-height: 1.5;
+      color: #333;
     }
 
-    .logout-btn {
-      margin-top: 30px;
-      display: block;
-      width: 90%;
-      max-width: 220px;
-      margin-left: auto;
-      margin-right: auto;
-      padding: 10px;
-      font-size: 0.6rem;
-      font-family: 'Press Start 2P';
-      background: #dc3545;
+    .section a.button {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 8px 12px;
+      font-size: 0.55rem;
+      border: 2px solid #ff6600;
+      color: #ff6600;
+      background: transparent;
+      border-radius: 6px;
+      text-decoration: none;
+      font-family: 'Press Start 2P', monospace;
+      transition: 0.3s ease;
+    }
+
+    .section a.button:hover {
+      background: #ff6600;
       color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
     }
 
-    /* Bottom Nav */
     .bottom-nav {
       position: fixed;
       bottom: 0;
@@ -156,40 +126,32 @@
     <h1>SLJR E-SPORTS</h1>
   </header>
 
-  <div class="user-info">
-    <img id="photo" src="" alt="Profile" />
-    <h2 id="name">Player</h2>
-    <p id="email">email@example.com</p>
-  </div>
-
-  <div class="balance">
-    Balance: ₹<span id="balance">0</span>
-  </div>
-
-  <div class="referral">
-    <p>Your Referral Code:</p>
-    <input id="uid" readonly />
-    <p>Referral Link:</p>
-    <input id="refLink" readonly />
-    <button class="copy-btn" onclick="copyReferral()">📋 Copy Link</button>
+  <div class="profile">
+    <img id="user-pic" src="" alt="Profile" />
+    <h2 id="user-name">Player</h2>
+    <p id="user-email">Loading...</p>
   </div>
 
   <div class="section">
-    <h3>How to Participate?</h3>
-    <p>Go to Home, select your game, follow instructions, play and earn rewards!</p>
+    <h3>HOW TO PARTICIPATE?</h3>
+    <p>Choose a game from the Home page, enter your Game ID, pay entry (if needed), and wait for results in Match History.</p>
   </div>
 
   <div class="section">
-    <h3>Contact Us</h3>
-    <p>Email: support@sljr.com<br>Instagram: @sljr_esports</p>
+    <h3>REFERRAL PROGRAM</h3>
+    <p>Share your referral code to earn ₹15 per signup. New users get ₹10 instantly!</p>
+    <a href="refferal.html" class="button">My Referral</a>
   </div>
 
   <div class="section">
-    <h3>FAQ</h3>
-    <p>Q: How do I join tournaments?<br>A: Open Home page and select a game.</p>
+    <h3>FREQUENTLY ASKED QUESTIONS</h3>
+    <p>• How do I win rewards?<br>• When will I receive my cashout?<br>• Can I withdraw anytime?</p>
   </div>
 
-  <button class="logout-btn" onclick="logout()">Logout</button>
+  <div class="section">
+    <h3>CONTACT US</h3>
+    <p>Email: support@sljr-esports.com<br>Instagram: @sljr_esports</p>
+  </div>
 
   <div class="bottom-nav">
     <a href="home.html">
@@ -210,10 +172,10 @@
     </a>
   </div>
 
+  <!-- Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyA0Qhb6FpIGKqWHwo-0pOvvX7bBRh-9FHY",
@@ -226,45 +188,17 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const db = getFirestore(app);
 
-    const uidEl = document.getElementById("uid");
-    const linkEl = document.getElementById("refLink");
-    const nameEl = document.getElementById("name");
-    const emailEl = document.getElementById("email");
-    const photoEl = document.getElementById("photo");
-    const balanceEl = document.getElementById("balance");
-
-    onAuthStateChanged(auth, async (user) => {
+    onAuthStateChanged(auth, (user) => {
       if (user) {
-        const uid = user.uid;
-        uidEl.value = uid;
-        linkEl.value = `${location.origin}/index.html?ref=${uid}`;
-        nameEl.textContent = user.displayName || "Gamer";
-        emailEl.textContent = user.email;
-        photoEl.src = user.photoURL || "";
-
-        const userRef = doc(db, "users", uid);
-        const snap = await getDoc(userRef);
-        if (snap.exists()) {
-          balanceEl.textContent = snap.data().balance || 0;
-        }
+        document.getElementById("user-name").textContent = user.displayName;
+        document.getElementById("user-email").textContent = user.email;
+        document.getElementById("user-pic").src = user.photoURL;
       } else {
-        location.href = "index.html";
+        window.location.href = "index.html";
       }
     });
-
-    window.copyReferral = function () {
-      linkEl.select();
-      document.execCommand("copy");
-      alert("Referral link copied!");
-    };
-
-    window.logout = function () {
-      signOut(auth).then(() => {
-        location.href = "index.html";
-      });
-    };
   </script>
+
 </body>
 </html>
