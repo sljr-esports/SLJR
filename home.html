@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SLJR Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #0f0f0f, #ff4500, #8b0000);
+      background-size: 300% 300%;
+      animation: bgFlow 10s ease infinite;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    @keyframes bgFlow {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    h1 {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 20px;
+      margin-bottom: 20px;
+      text-shadow: 0 0 10px orange;
+    }
+
+    .fade-slide {
+      animation: fadeInSlide 1s ease-out forwards;
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    @keyframes fadeInSlide {
+      0% {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .error-box, .welcome {
+      background: rgba(0, 0, 0, 0.7);
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 0 15px #ff0000;
+      max-width: 400px;
+      width: 90%;
+      display: none;
+    }
+
+    .error-box h2 {
+      color: #ff5555;
+      margin-bottom: 10px;
+    }
+
+    .error-box p {
+      font-size: 14px;
+    }
+
+    .btn {
+      margin-top: 15px;
+      padding: 12px 25px;
+      font-size: 14px;
+      font-weight: bold;
+      background: orange;
+      color: black;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    .btn:hover {
+      background: black;
+      color: orange;
+      border: 1px solid orange;
+    }
+
+    .welcome h2 {
+      color: #00eaff;
+      text-shadow: 0 0 5px #00eaff;
+    }
+
+    .welcome p {
+      font-size: 16px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>SLJR E-SPORTS</h1>
+
+  <!-- Error for not logged in -->
+  <div class="error-box fade-slide" id="loginError">
+    <h2>Login Expired</h2>
+    <p>Your session has expired or you're not logged in. Please log in again to continue.</p>
+    <button class="btn" onclick="window.location.href='index.html'">Go to Login</button>
+  </div>
+
+  <!-- Welcome if logged in -->
+  <div class="welcome fade-slide" id="welcomeBox">
+    <h2>Welcome Back 👋</h2>
+    <p id="userName">Loading...</p>
+  </div>
+
+  <script>
+    const uid = localStorage.getItem("sljr_uid");
+    const name = localStorage.getItem("sljr_name");
+
+    if (uid) {
+      document.getElementById("welcomeBox").style.display = "block";
+      document.getElementById("loginError").style.display = "none";
+      document.getElementById("userName").innerText = name ? name : "Gamer";
+    } else {
+      document.getElementById("loginError").style.display = "block";
+      document.getElementById("welcomeBox").style.display = "none";
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SLJR E-SPORTS - Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: radial-gradient(circle at center, #1a1a1a, #0d0d0d);
+      overflow: hidden;
+      height: 100vh;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      text-align: center;
+    }
+
+    /* 3D animated background */
+    body::before {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: repeating-radial-gradient(circle at center, #ff4800 0px, #a70000 2px, transparent 4px);
+      animation: spinBackground 20s linear infinite;
+      z-index: 0;
+      opacity: 0.1;
+    }
+
+    @keyframes spinBackground {
+      0% {
+        transform: rotate(0deg) scale(1.1);
+      }
+      100% {
+        transform: rotate(360deg) scale(1.1);
+      }
+    }
+
+    .container {
+      z-index: 1;
+      padding: 20px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .header {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 22px;
+      line-height: 1.6;
+      text-shadow: 0 0 15px orange, 0 0 25px red;
+      animation: slideDown 1.8s ease-out forwards, glow 2.5s ease-in-out infinite;
+      opacity: 0;
+      margin-top: 60px;
+    }
+
+    @keyframes slideDown {
+      0% {
+        transform: translateY(-100px);
+        opacity: 0;
+      }
+      100% {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes glow {
+      0%, 100% {
+        text-shadow: 0 0 15px orange, 0 0 25px red;
+      }
+      50% {
+        text-shadow: 0 0 20px red, 0 0 30px orange;
+      }
+    }
+
+    .sub-header {
+      font-size: 14px;
+      margin-top: 10px;
+    }
+
+    .genz {
+      color: #00e5ff;
+      text-shadow: 0 0 8px #00e5ff;
+    }
+
+    .google-btn {
+      background: orange;
+      color: black;
+      border: none;
+      padding: 14px 24px;
+      font-size: 14px;
+      font-weight: bold;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: 0.3s ease;
+      margin: 0 auto 30px auto;
+      width: 80%;
+      max-width: 300px;
+      z-index: 2;
+      position: relative;
+    }
+
+    .google-btn:hover {
+      background: black;
+      color: orange;
+      border: 1px solid orange;
+    }
+
+    footer {
+      font-size: 10px;
+      opacity: 0.5;
+      margin-bottom: 10px;
+      z-index: 2;
+      position: relative;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="header">
+      SLJR E-SPORTS
+      <div class="sub-header">
+        TOURNAMENT<br><span class="genz">FOR GEN-Z</span>
+      </div>
+    </div>
+  </div>
+
+  <button class="google-btn" id="googleLogin">Sign in with Google</button>
+  <footer>Powered by SLJR & Firebase</footer>
+
+  <!-- Firebase Google Sign-In -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyA0Qhb6FpIGKqWHwo-0pOvvX7bBRh-9FHY",
+      authDomain: "sljr-e-sports.firebaseapp.com",
+      projectId: "sljr-e-sports",
+      storageBucket: "sljr-e-sports.firebasestorage.app",
+      messagingSenderId: "568709951241",
+      appId: "1:568709951241:web:75498cdedbc058c06e2dd8",
+      measurementId: "G-QQ7MWDW2VD"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    document.getElementById("googleLogin").addEventListener("click", async () => {
+      try {
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+
+        // Save to localStorage
+        localStorage.setItem("sljr_uid", user.uid);
+        localStorage.setItem("sljr_email", user.email);
+        localStorage.setItem("sljr_name", user.displayName);
+
+        // Redirect
+        window.location.href = "dashboard.html";
+      } catch (error) {
+        alert("Login failed: " + error.message);
+      }
+    });
+  </script>
+</body>
+</html>
