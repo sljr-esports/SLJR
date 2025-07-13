@@ -3,105 +3,98 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SLJR Dashboard</title>
+  <title>Dashboard - SLJR</title>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
-
   <style>
     body {
       margin: 0;
       font-family: 'Press Start 2P', monospace;
-      background-color: #fff;
+      background-color: #ffffff;
       color: #000;
-      padding-bottom: 100px;
+      padding-bottom: 80px;
+      text-align: center;
     }
 
     header {
       background-color: #ff6600;
+      padding: 14px;
       color: #fff;
-      padding: 12px;
-      text-align: center;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       border-bottom: 2px solid #000;
-      position: sticky;
-      top: 0;
-      z-index: 10;
       text-shadow: 1px 1px 0 #000;
     }
 
     .profile {
-      text-align: center;
-      margin-top: 20px;
+      padding: 20px;
     }
 
     .profile img {
       width: 80px;
       height: 80px;
       border-radius: 50%;
-      border: 2px solid #ff6600;
+      border: 2px solid #000;
     }
 
-    .profile h2 {
+    .profile h2, .profile p {
+      margin: 10px 0;
       font-size: 0.6rem;
-      margin: 10px 0 4px;
     }
 
-    .profile p {
+    .section {
+      margin: 20px;
+      padding: 15px;
+      border: 2px solid #000;
+      border-radius: 12px;
+      background: #f9f9f9;
+      box-shadow: 3px 3px 0px #000;
+    }
+
+    .section h3 {
+      font-size: 0.6rem;
+      color: #ff6600;
+      margin-bottom: 8px;
+    }
+
+    .section p {
       font-size: 0.5rem;
-      color: #888;
-      margin: 0;
+      color: #333;
     }
 
     .logout-btn {
-      margin-top: 14px;
-      background-color: #fff;
+      margin-top: 20px;
+      background-color: white;
+      border: 2px solid #ff6600;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 0.55rem;
       color: #ff6600;
-      border: 2px solid #000;
-      font-size: 0.5rem;
       font-family: 'Press Start 2P', monospace;
-      padding: 8px 16px;
-      border-radius: 10px;
       cursor: pointer;
-      box-shadow: 2px 2px 0 #000;
+      transition: all 0.2s ease;
     }
 
     .logout-btn:hover {
       background-color: #ff6600;
-      color: #fff;
-    }
-
-    section {
-      padding: 20px;
-      border-top: 2px dashed #ccc;
-    }
-
-    section h3 {
-      font-size: 0.65rem;
-      color: #ff6600;
-      margin-bottom: 10px;
-    }
-
-    section p {
-      font-size: 0.5rem;
-      color: #333;
-      line-height: 1.4;
+      color: white;
     }
 
     footer {
       position: fixed;
       bottom: 0;
       width: 100%;
-      background-color: #fff;
+      background: #fff;
       border-top: 2px solid #000;
       display: flex;
       justify-content: space-around;
       padding: 10px 0;
-      z-index: 20;
+      z-index: 99;
     }
 
     footer img {
       width: 24px;
       height: 24px;
-      opacity: 0.6;
+      opacity: 0.5;
+      transition: 0.2s ease;
     }
 
     footer img.active {
@@ -112,53 +105,38 @@
 </head>
 <body>
 
-  <header>SLJR DASHBOARD</header>
+  <header>SLJR E-SPORTS - DASHBOARD</header>
 
   <div class="profile">
-    <img id="userPhoto" src="" alt="User" />
-    <h2 id="userName">Loading...</h2>
-    <p id="userEmail"></p>
-    <button class="logout-btn" onclick="logout()">LOGOUT</button>
+    <img id="user-pic" src="" alt="User Pic" />
+    <h2 id="user-name">Name</h2>
+    <p id="user-email">Email</p>
   </div>
 
-  <section>
-    <h3>📌 How to Participate?</h3>
-    <p>
-      Choose a tournament from the Home page.<br>
-      Register before the deadline.<br>
-      Join using your game ID. Earn rewards based on your performance!
-    </p>
-  </section>
+  <div class="section">
+    <h3>How to Participate?</h3>
+    <p>Register, Join Tournament, Submit Game ID, Compete & Earn Rewards.</p>
+  </div>
 
-  <section>
-    <h3>📞 Contact Us</h3>
-    <p>
-      Email: support@sljr-esports.com<br>
-      Instagram: @sljr_esports<br>
-      WhatsApp: +91-9999999999
-    </p>
-  </section>
+  <div class="section">
+    <h3>Contact Us</h3>
+    <p>support@sljr-esports.com<br/>Instagram: @sljr.esports</p>
+  </div>
 
-  <section>
-    <h3>❓ FAQ</h3>
-    <p>
-      <strong>Q: Is it free?</strong><br>
-      A: Yes, entry is free for most tournaments.<br><br>
-      <strong>Q: How do I earn money?</strong><br>
-      A: Earn through top rankings and completing game objectives.<br><br>
-      <strong>Q: When are rewards given?</strong><br>
-      A: Within 24 hours after tournament ends.
-    </p>
-  </section>
+  <div class="section">
+    <h3>FAQ</h3>
+    <p>Q: How do I earn?<br/>A: Win tournaments, refer friends, complete challenges.</p>
+  </div>
+
+  <button class="logout-btn" onclick="logout()">Logout</button>
 
   <footer>
-    <img src="home.png" alt="Home" onclick="location.href='home.html'" />
-    <img src="wallet.png" alt="Wallet" onclick="location.href='redeem.html'" />
-    <img src="profile.png" class="active" alt="Dashboard" "onclick="location.href='dashbord.html'" />
-    <img src="game-history.png" alt="History" />
+    <img src="home.png" id="nav-home" onclick="location.href='home.html'" alt="Home" />
+    <img src="wallet.png" id="nav-wallet" onclick="location.href='redeem.html'" alt="Wallet" />
+    <img src="profile.png" id="nav-dashboard" onclick="location.href='dashboard.html'" alt="Dashboard" />
+    <img src="game-history.png" id="nav-history" onclick="location.href='match-history.html'" alt="Match History" />
   </footer>
 
-  <!-- Firebase Auth -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -177,22 +155,32 @@
     const auth = getAuth(app);
 
     onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        window.location.href = "login.html";
+      if (user) {
+        document.getElementById("user-pic").src = user.photoURL;
+        document.getElementById("user-name").textContent = user.displayName;
+        document.getElementById("user-email").textContent = user.email;
       } else {
-        document.getElementById("userName").innerText = user.displayName || "Gamer";
-        document.getElementById("userEmail").innerText = user.email;
-        document.getElementById("userPhoto").src = user.photoURL || "default-avatar.png";
+        window.location.href = "login.html";
       }
     });
 
     window.logout = function () {
       signOut(auth).then(() => {
         window.location.href = "login.html";
-      }).catch((error) => {
-        alert("Error signing out: " + error.message);
       });
     };
+
+    // Set active tab
+    const path = window.location.pathname;
+    if (path.includes("home")) {
+      document.getElementById("nav-home").classList.add("active");
+    } else if (path.includes("redeem")) {
+      document.getElementById("nav-wallet").classList.add("active");
+    } else if (path.includes("dashboard")) {
+      document.getElementById("nav-dashboard").classList.add("active");
+    } else if (path.includes("match-history")) {
+      document.getElementById("nav-history").classList.add("active");
+    }
   </script>
 
 </body>
