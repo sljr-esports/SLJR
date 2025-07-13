@@ -2,22 +2,28 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>SLJR Dashboard</title>
+  <title>Dashboard - SLJR</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
   <style>
     body {
       margin: 0;
-      padding: 20px;
+      padding-bottom: 80px;
       font-family: 'Press Start 2P', monospace;
-      background: #fff;
+      background: #ffffff;
       color: #222;
     }
 
     header {
       text-align: center;
-      padding-bottom: 10px;
+      padding: 15px 0 10px;
       border-bottom: 2px solid #ff6600;
+      background: white;
+    }
+
+    header h1 {
+      font-size: 1rem;
+      color: #ff6600;
     }
 
     .user-info {
@@ -53,7 +59,7 @@
       border: 2px dashed #ff6600;
       border-radius: 10px;
       padding: 15px;
-      margin: 20px 0;
+      margin: 20px;
       text-align: center;
     }
 
@@ -80,7 +86,7 @@
     }
 
     .section {
-      margin-top: 30px;
+      margin: 20px;
     }
 
     .section h3 {
@@ -97,7 +103,7 @@
     .logout-btn {
       margin-top: 30px;
       display: block;
-      width: 100%;
+      width: 90%;
       max-width: 220px;
       margin-left: auto;
       margin-right: auto;
@@ -110,9 +116,42 @@
       border-radius: 8px;
       cursor: pointer;
     }
+
+    /* Bottom Nav */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: white;
+      border-top: 1px solid #ddd;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      height: 60px;
+      z-index: 100;
+    }
+
+    .bottom-nav a {
+      text-align: center;
+      font-size: 0.55rem;
+      color: #222;
+      text-decoration: none;
+    }
+
+    .bottom-nav a.active {
+      color: #ff6600;
+    }
+
+    .bottom-nav img {
+      width: 22px;
+      height: 22px;
+      margin-bottom: 2px;
+    }
   </style>
 </head>
 <body>
+
   <header>
     <h1>SLJR E-SPORTS</h1>
   </header>
@@ -132,25 +171,44 @@
     <input id="uid" readonly />
     <p>Referral Link:</p>
     <input id="refLink" readonly />
-    <button class="copy-btn" onclick="copyReferral()">📋 Copy Referral Link</button>
+    <button class="copy-btn" onclick="copyReferral()">📋 Copy Link</button>
   </div>
 
   <div class="section">
     <h3>How to Participate?</h3>
-    <p>Join tournaments from the Home page. Follow instructions. Play. Earn.</p>
+    <p>Go to Home, select your game, follow instructions, play and earn rewards!</p>
   </div>
 
   <div class="section">
     <h3>Contact Us</h3>
-    <p>Email us at support@sljr.com or message on Instagram @sljr_esports</p>
+    <p>Email: support@sljr.com<br>Instagram: @sljr_esports</p>
   </div>
 
   <div class="section">
     <h3>FAQ</h3>
-    <p>Q: How do I join?<br>A: Open Home, pick a game, tap Join.</p>
+    <p>Q: How do I join tournaments?<br>A: Open Home page and select a game.</p>
   </div>
 
   <button class="logout-btn" onclick="logout()">Logout</button>
+
+  <div class="bottom-nav">
+    <a href="home.html">
+      <img src="home.png" alt="Home" />
+      <div>Home</div>
+    </a>
+    <a href="redeem.html">
+      <img src="wallet.png" alt="Wallet" />
+      <div>Wallet</div>
+    </a>
+    <a href="dashboard.html" class="active">
+      <img src="profile.png" alt="Dashboard" />
+      <div>Dashboard</div>
+    </a>
+    <a href="match-history.html">
+      <img src="game-history.png" alt="History" />
+      <div>History</div>
+    </a>
+  </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -190,8 +248,6 @@
         const snap = await getDoc(userRef);
         if (snap.exists()) {
           balanceEl.textContent = snap.data().balance || 0;
-        } else {
-          balanceEl.textContent = 0;
         }
       } else {
         location.href = "index.html";
