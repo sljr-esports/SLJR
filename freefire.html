@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Free Fire Tournaments - SLJR</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Press Start 2P', monospace;
+      background: #fff;
+      color: #222;
+      padding-bottom: 80px;
+    }
+
+    header {
+      background: #fff;
+      border-bottom: 2px solid #ff6600;
+      padding: 15px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1rem;
+      color: #ff6600;
+    }
+
+    .container {
+      padding: 16px;
+    }
+
+    .tournament-card {
+      border: 2px solid #ff6600;
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 20px;
+      box-shadow: 2px 2px 0px #00000033;
+    }
+
+    .tournament-card h2 {
+      font-size: 0.8rem;
+      margin: 0 0 8px;
+      color: #ff6600;
+    }
+
+    .tournament-card p {
+      font-size: 0.55rem;
+      margin: 4px 0;
+    }
+
+    .join-btn {
+      background: #ff6600;
+      color: white;
+      border: none;
+      font-size: 0.55rem;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .join-btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: white;
+      border-top: 1px solid #ddd;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      height: 60px;
+      z-index: 100;
+    }
+
+    .bottom-nav a {
+      text-align: center;
+      font-size: 0.55rem;
+      color: #222;
+      text-decoration: none;
+    }
+
+    .bottom-nav a.active {
+      color: #ff6600;
+    }
+
+    .bottom-nav img {
+      width: 22px;
+      height: 22px;
+      margin-bottom: 2px;
+    }
+
+    .empty {
+      text-align: center;
+      color: #999;
+      font-size: 0.55rem;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>FREE FIRE TOURNAMENTS</h1>
+  </header>
+
+  <div class="container" id="tournamentList">
+    <p class="empty">Loading tournaments...</p>
+  </div>
+
+  <div class="bottom-nav">
+    <a href="home.html">
+      <img src="home.png" alt="Home" />
+      <div>Home</div>
+    </a>
+    <a href="redeem.html">
+      <img src="wallet.png" alt="Wallet" />
+      <div>Wallet</div>
+    </a>
+    <a href="dashboard.html">
+      <img src="profile.png" alt="Dashboard" />
+      <div>Dashboard</div>
+    </a>
+    <a href="match-history.html">
+      <img src="game-history.png" alt="History" />
+      <div>History</div>
+    </a>
+  </div>
+
+  <!-- Firebase Auth + Firestore -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, collection, getDocs, doc, updateDoc, arrayUnion, query, where } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyA0Qhb6FpIGKqWHwo-0pOvvX7bBRh-9FHY",
+      authDomain: "sljr-e-sports.firebaseapp.com",
+      projectId: "sljr-e-sports",
+      storageBucket: "sljr-e-sports.firebasestorage.app",
+      messagingSenderId: "568709951241",
+      appId: "1:568709951241:web:75498cdedbc058c06e2dd8"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+    let currentUser = null;
+
+    const tournamentList = document.getElementById("tournamentList");
+
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        currentUser = user;
+        loadTournaments();
+      } else {
+        window.location.href = "index.html";
+      }
+    });
+
+    async function loadTournaments() {
+      const q = query(collection(db, "tournaments"), where("game", "==", "Free Fire"));
+      const querySnapshot = await getDocs(q);
+      tournamentList.innerHTML = "";
+
+      if (querySnapshot.empty) {
+        tournamentList.innerHTML = '<p class="empty">No tournaments available right now.</p>';
+      }
+
+      querySnapshot.forEach(docSnap => {
+        const data = docSnap.data();
+        const id = docSnap.id;
+        const participants = data.participants || [];
+        const isJoined = participants.includes(currentUser.uid);
+        const isFull = participants.length >= data.maxParticipants;
+
+        const div = document.createElement("div");
+        div.className = "tournament-card";
+        div.innerHTML = `
+          <h2>${data.gameID || "ID Not Set"}</h2>
+          <p><strong>Type:</strong> ${data.type}</p>
+          <p><strong>Entry Fee:</strong> ₹${data.entryFee}</p>
+          <p><strong>Prize Pool:</strong> ₹${data.prizePool}</p>
+          <p><strong>Date:</strong> ${data.date}</p>
+          <p><strong>Time:</strong> ${data.time}</p>
+          <p><strong>Players:</strong> ${participants.length} / ${data.maxParticipants}</p>
+          ${isJoined ? `<button class="join-btn" disabled>Joined</button>` : isFull ? `<button class="join-btn" disabled>Full</button>` : `<button class="join-btn" onclick="joinTournament('${id}')">Join</button>`}
+        `;
+        tournamentList.appendChild(div);
+      });
+    }
+
+    window.joinTournament = async function (id) {
+      try {
+        const ref = doc(db, "tournaments", id);
+        await updateDoc(ref, {
+          participants: arrayUnion(currentUser.uid)
+        });
+        alert("Joined successfully!");
+        loadTournaments();
+      } catch (err) {
+        alert("Failed to join: " + err.message);
+      }
+    }
+  </script>
+</body>
+</html>
