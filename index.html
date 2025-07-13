@@ -5,7 +5,7 @@
   <title>SLJR E-Sports Login</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Google Font -->
+  <!-- Pixel Gaming Font -->
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 
   <style>
@@ -13,54 +13,93 @@
       margin: 0;
       padding: 0;
       font-family: 'Press Start 2P', monospace;
-      background: white;
+      background: #ffffff;
+      color: #111;
       display: flex;
+      flex-direction: column;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      flex-direction: column;
+      overflow: hidden;
       text-align: center;
     }
 
-    h1 {
-      font-size: 1.2rem;
+    .title {
+      animation: slideDown 1s ease-out forwards;
+      opacity: 0;
+    }
+
+    .title h1 {
+      margin: 10px 0;
+      font-size: 1rem;
       color: #ff6600;
-      margin-bottom: 40px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .title h2 {
+      font-size: 0.8rem;
+      margin: 5px 0;
+      color: #222;
+    }
+
+    .title h3 {
+      font-size: 0.75rem;
+      color: #00cfff;
+      text-shadow: 1px 1px 4px #001f3f;
     }
 
     .login-btn {
+      position: absolute;
+      bottom: 40px;
       background-color: white;
       border: 2px solid #ff6600;
       color: #ff6600;
-      border-radius: 8px;
-      padding: 12px 18px;
-      font-size: 0.75rem;
-      cursor: pointer;
+      padding: 12px 20px;
+      border-radius: 10px;
       display: flex;
       align-items: center;
-      gap: 10px;
-      transition: 0.3s ease;
-      box-shadow: 3px 3px 0 #000;
+      gap: 12px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.6rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 4px 4px 0 #000;
     }
 
     .login-btn:hover {
       background-color: #ff6600;
       color: white;
+      box-shadow: 0 0 10px #ff6600;
     }
 
     .login-btn img {
-      width: 18px;
-      height: 18px;
+      width: 20px;
+      height: 20px;
+    }
+
+    @keyframes slideDown {
+      from {
+        transform: translateY(-60px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
     }
   </style>
 </head>
 <body>
 
-  <h1>SLJR E-SPORTS TOURNAMENT</h1>
+  <div class="title">
+    <h1>SLJR E-SPORTS</h1>
+    <h2>TOURNAMENT</h2>
+    <h3>FOR GEN-Z</h3>
+  </div>
 
   <button class="login-btn" onclick="googleLogin()">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Google_Icon.png" alt="Google Icon" />
-    Sign in with Google
+    <img src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Google_Icon.png" alt="Google" />
+    SIGN IN WITH GOOGLE
   </button>
 
   <!-- Firebase Login Script -->
@@ -84,8 +123,8 @@
     window.googleLogin = function () {
       signInWithPopup(auth, provider)
         .then((result) => {
-          console.log("User signed in:", result.user);
-          window.location.href = "home.html";
+          console.log("Signed in as:", result.user.displayName);
+          window.location.href = "home.html"; // ✅ redirect
         })
         .catch((error) => {
           alert("Login failed: " + error.message);
