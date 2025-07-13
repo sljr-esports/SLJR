@@ -58,32 +58,49 @@
 
     .container {
       padding: 20px;
-      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
     .avatar {
-      width: 80px;
-      height: 80px;
+      width: 100px;
+      height: 100px;
       border-radius: 50%;
       margin-bottom: 10px;
+      border: 2px solid #ff6600;
     }
 
     .info {
-      font-size: 0.6rem;
-      margin: 5px 0;
+      font-size: 0.7rem;
+      margin: 8px 0;
+      color: #333;
+      text-align: center;
+    }
+
+    .btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 20px;
+      width: 80%;
     }
 
     .btn {
-      display: block;
-      margin: 10px auto;
-      padding: 10px 20px;
-      font-size: 0.55rem;
+      padding: 12px;
+      font-size: 0.6rem;
       font-family: 'Press Start 2P', monospace;
       background: #ff6600;
       color: #fff;
       border: none;
-      border-radius: 6px;
+      border-radius: 10px;
       cursor: pointer;
+      text-align: center;
+      box-shadow: 2px 2px 0 #000;
+    }
+
+    .btn:hover {
+      background: #e65c00;
     }
 
     .nav {
@@ -119,10 +136,12 @@
   </header>  <div class="container">
     <img id="user-pic" class="avatar" src="" alt="User">
     <div class="info" id="user-name">Name</div>
-    <div class="info" id="user-email">Email</div><button class="btn" onclick="location.href='refferal.html'">My Referral</button>
-<button class="btn" onclick="location.href='faq.html'">FAQ</button>
-<button class="btn" onclick="location.href='contact.html'">Contact Us</button>
-<button class="btn" onclick="logoutUser()">Logout</button>
+    <div class="info" id="user-email">Email</div><div class="btn-group">
+  <button class="btn" onclick="location.href='refferal.html'">🎁 My Referral</button>
+  <button class="btn" onclick="location.href='faq.html'">❓ FAQ</button>
+  <button class="btn" onclick="location.href='contact.html'">📞 Contact Us</button>
+  <button class="btn" onclick="logoutUser()">🚪 Logout</button>
+</div>
 
   </div>  <div class="nav">
     <a href="home.html">
