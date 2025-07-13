@@ -1,12 +1,12 @@
-<!-- ✅ Full Updated Home Page (home.html) with Universal White Navbar & Firebase Auth Check --><!DOCTYPE html><html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Home - SLJR E-Sports</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard - SLJR E-Sports</title>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";const firebaseConfig = {
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";const firebaseConfig = {
   apiKey: "AIzaSyA0Qhb6FpIGKqWHwo-0pOvvX7bBRh-9FHY",
   authDomain: "sljr-e-sports.firebaseapp.com",
   projectId: "sljr-e-sports",
@@ -22,28 +22,66 @@ const auth = getAuth(app);
 onAuthStateChanged(auth, (user) => {
   if (!user) {
     window.location.href = "index.html";
+  } else {
+    document.getElementById("user-name").textContent = user.displayName;
+    document.getElementById("user-email").textContent = user.email;
+    document.getElementById("user-pic").src = user.photoURL;
+    document.getElementById("ref-link").textContent = `${window.location.origin}/index.html?ref=${user.uid}`;
+    document.getElementById("ref-code").textContent = user.uid;
   }
 });
+
+window.logout = function () {
+  signOut(auth).then(() => window.location.href = "index.html");
+}
 
   </script>
   <style>
     body {
       margin: 0;
       font-family: 'Press Start 2P', monospace;
+      padding-bottom: 80px;
       background: #fff;
-      padding-bottom: 70px;
       text-align: center;
     }
-    h1 {
-      color: #ff6600;
-      font-size: 1rem;
-      margin: 20px;
-    }
-    .game-box {
-      margin: 20px;
-      border: 2px solid #eee;
+    header {
       padding: 10px;
+      background: #fff;
+      border-bottom: 2px solid orange;
+    }
+    header h1 {
+      font-size: 1rem;
+      color: #ff6600;
+      margin: 0;
+    }
+    .profile {
+      margin-top: 20px;
+    }
+    .profile img {
+      border-radius: 50%;
+      width: 80px;
+      height: 80px;
+    }
+    .info {
+      margin: 10px;
+      font-size: 0.7rem;
+    }
+    .section {
+      margin: 20px auto;
+      padding: 15px;
+      max-width: 90%;
+      border: 2px solid #eee;
       border-radius: 8px;
+    }
+    button {
+      font-family: 'Press Start 2P', monospace;
+      padding: 8px 12px;
+      border: none;
+      background: #ff6600;
+      color: white;
+      cursor: pointer;
+      margin: 10px 0;
+      font-size: 0.5rem;
     }
     .nav {
       position: fixed;
@@ -72,9 +110,31 @@ onAuthStateChanged(auth, (user) => {
   </style>
 </head>
 <body>
-  <h1>🎮 SLJR E-SPORTS GAMES</h1>
-  <div class="game-box">Free Fire Max</div>
-  <div class="game-box">BGMI - Coming Soon</div>  <!-- ✅ Bottom Navigation -->  <div class="nav">
+  <header>
+    <h1>SLJR E-SPORTS</h1>
+  </header>  <div class="profile">
+    <img id="user-pic" src="" alt="Profile Picture" />
+    <div class="info">
+      <div id="user-name"></div>
+      <div id="user-email"></div>
+    </div>
+    <button onclick="logout()">Logout</button>
+  </div>  <div class="section">
+    <h2 style="font-size: 0.8rem; color: #333;">My Referral</h2>
+    <p style="font-size: 0.6rem; color: #444;">Referral Code:</p>
+    <div id="ref-code" style="font-size: 0.6rem; word-break: break-all;"></div>
+    <p style="font-size: 0.6rem; color: #444;">Referral Link:</p>
+    <div id="ref-link" style="font-size: 0.5rem; word-break: break-all;"></div>
+  </div>  <div class="section">
+    <h2 style="font-size: 0.8rem; color: #333;">How to Participate?</h2>
+    <p style="font-size: 0.6rem;">Register > Join Tournament > Upload Results > Earn Rewards</p>
+  </div>  <div class="section">
+    <h2 style="font-size: 0.8rem; color: #333;">Contact Us</h2>
+    <p style="font-size: 0.6rem;">support@sljr-esports.com</p>
+  </div>  <div class="section">
+    <h2 style="font-size: 0.8rem; color: #333;">FAQ</h2>
+    <p style="font-size: 0.6rem;">Q: How to claim rewards?<br>A: Go to Redeem section and click cashout.</p>
+  </div>  <div class="nav">
     <a href="home.html">
       <img src="home.png" alt="Home" class="nav-icon" id="home-icon" />
     </a>
