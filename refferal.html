@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Referrals - SLJR E-Sports</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Press Start 2P', monospace;
+      background-color: #ffffff;
+      color: #111;
+      padding: 16px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #ff6600;
+      font-size: 0.9rem;
+      margin-bottom: 20px;
+    }
+
+    .referral-item {
+      background: #f5f5f5;
+      border-radius: 12px;
+      box-shadow: 2px 2px 6px #ccc;
+      margin: 12px 0;
+      padding: 14px;
+      font-size: 0.5rem;
+      text-align: left;
+    }
+
+    .referral-item strong {
+      color: #000;
+    }
+
+    .nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: white;
+      border-top: 1px solid #ddd;
+      display: flex;
+      justify-content: space-around;
+      padding: 8px 0;
+    }
+
+    .nav img {
+      width: 22px;
+      height: 22px;
+      opacity: 0.7;
+    }
+
+    .nav img.active {
+      opacity: 1;
+      border-bottom: 2px solid orange;
+    }
+
+    .footer {
+      font-size: 0.45rem;
+      color: #aaa;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🧑‍🤝‍🧑 My Referred Users</h1>
+  <div id="referralList">Loading referrals...</div>
+
+  <div class="footer">© SLJR E-Sports | Referral System</div>
+
+  <div class="nav">
+    <a href="home.html"><img src="home.png" /></a>
+    <a href="redeem.html"><img src="wallet.png" /></a>
+    <a href="dashboard.html"><img src="profile.png" /></a>
+    <a href="match-history.html"><img src="game-history.png" /></a>
+  </div>
+
+  <script type="module">
+    import {
+      initializeApp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import {
+      getAuth,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      getFirestore,
+      collection,
+      query,
+      where,
+      getDocs,
+      Timestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyA0Qhb6FpIGKqWHwo-0pOvvX7bBRh-9FHY",
+      authDomain: "sljr-e-sports.firebaseapp.com",
+      projectId: "sljr-e-sports",
+      storageBucket: "sljr-e-sports.firebasestorage.app",
+      messagingSenderId: "568709951241",
+      appId: "1:568709951241:web:75498cdedbc058c06e2dd8"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) return location.href = "index.html";
+
+      const q = query(collection(db, "users"), where("refBy", "==", user.uid));
+      const snapshot = await getDocs(q);
+
+      const container = document.getElementById("referralList");
+      container.innerHTML = "";
+
+      if (snapshot.empty) {
+        container.innerHTML = "<p>No referrals found.</p>";
+        return;
+      }
+
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const joined = data.joinedAt?.toDate().toLocaleDateString() ?? "Unknown";
+        const div = document.createElement("div");
+        div.className = "referral-item";
+        div.innerHTML = `
+          <p><strong>Name:</strong> ${data.name ?? 'User'}</p>
+          <p><strong>Email:</strong> ${data.email}</p>
+          <p><strong>UID:</strong> ${doc.id}</p>
+          <p><strong>Joined:</strong> ${joined}</p>
+        `;
+        container.appendChild(div);
+      });
+    });
+  </script>
+</body>
+</html>
