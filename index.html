@@ -4,39 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SLJR E-Sports Login</title>
-
-  <!-- Pixel Font -->
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-
-  <!-- Firebase -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyA0Qhb6FpIGKqWHwo-0pOvvX7bBRh-9FHY",
-      authDomain: "sljr-e-sports.firebaseapp.com",
-      projectId: "sljr-e-sports",
-      storageBucket: "sljr-e-sports.firebasestorage.app",
-      messagingSenderId: "568709951241",
-      appId: "1:568709951241:web:75498cdedbc058c06e2dd8",
-      measurementId: "G-QQ7MWDW2VD"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const provider = new GoogleAuthProvider();
-
-    window.googleLogin = function () {
-      signInWithPopup(auth, provider)
-        .then(() => {
-          window.location.href = "home.html";
-        })
-        .catch((error) => {
-          alert("Login failed: " + error.message);
-        });
-    };
-  </script>
 
   <style>
     body {
@@ -56,49 +24,7 @@
       margin: 12px 0;
       padding: 10px 20px;
       font-weight: bold;
-      opacity: 0;
-      transform: translateY(40px);
-      animation: slideUp 0.6s forwards, glowShadow 2s ease-in-out infinite alternate;
-    }
-
-    h1:nth-child(1) {
-      font-size: 1.6rem;
-      color: #ff6600;
-      -webkit-text-stroke: 1px #000;
-      text-shadow: 2px 2px 5px #000;
-      animation-delay: 0.3s, 0.3s;
-    }
-
-    h1:nth-child(2) {
-      font-size: 1.2rem;
-      color: #222;
-      -webkit-text-stroke: 1px #888;
-      text-shadow: 2px 2px 4px #aaa;
-      animation-delay: 0.6s, 0.6s;
-    }
-
-    h1:nth-child(3) {
-      font-size: 1.4rem;
-      color: #00cfff;
-      -webkit-text-stroke: 1px #000;
-      text-shadow: 2px 2px 5px #001f3f;
-      animation-delay: 0.9s, 0.9s;
-    }
-
-    @keyframes slideUp {
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @keyframes glowShadow {
-      0% {
-        text-shadow: 2px 2px 4px #000;
-      }
-      100% {
-        text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.4);
-      }
+      font-size: 1rem;
     }
 
     .login-btn {
@@ -144,11 +70,80 @@
   <h1>FOR GEN-Z</h1>
 
   <button class="login-btn" onclick="googleLogin()">
-    <img src="google-logo.png" alt="Google" />
+    <img src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Google_Icon.png" alt="Google" />
     SIGN IN WITH GOOGLE
   </button>
 
-  <div class="footer">🚀 Enter the Arena | SLJR Gaming</div>
+  <div class="footer">🚀 Invite Friends, Earn Rewards</div>
+
+  <!-- Firebase & Auth -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyA0Qhb6FpIGKqWHwo-0pOvvX7bBRh-9FHY",
+      authDomain: "sljr-e-sports.firebaseapp.com",
+      projectId: "sljr-e-sports",
+      storageBucket: "sljr-e-sports.firebasestorage.app",
+      messagingSenderId: "568709951241",
+      appId: "1:568709951241:web:75498cdedbc058c06e2dd8",
+      measurementId: "G-QQ7MWDW2VD"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+    const db = getFirestore(app);
+
+    function generateReferralCode(uid) {
+      return "SLJR" + uid.slice(-4).toUpperCase();  // Ex: SLJR3A7B
+    }
+
+    window.googleLogin = async function () {
+      try {
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+        const userRef = doc(db, "users", user.uid);
+        const snap = await getDoc(userRef);
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const referredBy = urlParams.get("ref") || null;
+        const referralCode = generateReferralCode(user.uid);
+
+        if (!snap.exists()) {
+          let walletAmount = 0;
+
+          if (referredBy) walletAmount = 10;
+
+          await setDoc(userRef, {
+            name: user.displayName,
+            email: user.email,
+            photo: user.photoURL,
+            wallet: walletAmount,
+            referralCode: referralCode,
+            referredBy: referredBy
+          });
+
+          if (referredBy) {
+            const q = query(collection(db, "users"), where("referralCode", "==", referredBy));
+            const refSnap = await getDocs(q);
+            refSnap.forEach(async (refDoc) => {
+              const refData = refDoc.data();
+              const refUserRef = doc(db, "users", refDoc.id);
+              const newWallet = (refData.wallet || 0) + 15;
+              await updateDoc(refUserRef, { wallet: newWallet });
+            });
+          }
+        }
+
+        window.location.href = "home.html";
+      } catch (error) {
+        alert("Login failed: " + error.message);
+      }
+    };
+  </script>
 
 </body>
 </html>
