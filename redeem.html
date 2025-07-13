@@ -9,8 +9,9 @@
     body {
       margin: 0;
       font-family: 'Press Start 2P', monospace;
-      background: #fff;
+      background: #ffffff;
       padding-bottom: 80px;
+      color: #222;
     }
 
     header {
@@ -23,11 +24,12 @@
     header h1 {
       font-size: 1rem;
       color: #ff6600;
+      margin: 0;
     }
 
     .balance-section {
       text-align: center;
-      margin: 20px 0;
+      margin: 25px 0;
     }
 
     .balance-section h2 {
@@ -36,40 +38,58 @@
     }
 
     .btn-group {
-      text-align: center;
-      margin: 20px 0;
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin: 30px 0;
     }
 
     .btn-group button {
-      font-size: 0.6rem;
-      margin: 10px;
-      padding: 10px 16px;
-      border: none;
-      border-radius: 8px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.55rem;
+      padding: 10px 18px;
+      border: 2px solid #ff6600;
+      background: transparent;
+      border-radius: 6px;
+      color: #ff6600;
       cursor: pointer;
-      background-color: #ff6600;
-      color: #fff;
+      transition: 0.3s ease;
+      box-shadow: 2px 2px 0px #000;
+    }
+
+    .btn-group button:hover {
+      background: #ff6600;
+      color: white;
+      transform: scale(1.05);
+      box-shadow: 0 0 8px #ff6600;
     }
 
     .transactions {
-      margin: 20px;
+      margin: 25px 20px;
     }
 
     .transactions h3 {
       font-size: 0.7rem;
-      margin-bottom: 10px;
-      color: #ff6600;
+      margin-bottom: 12px;
+      color: #000;
+      border-left: 4px solid #ff6600;
+      padding-left: 10px;
     }
 
     .transactions .item {
       font-size: 0.6rem;
       padding: 10px;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
       border: 1px dashed #ccc;
       border-radius: 6px;
+      background: #f9f9f9;
     }
 
-    /* Bottom Nav */
+    .transactions .item a {
+      color: #ff6600;
+      text-decoration: underline;
+    }
+
     .bottom-nav {
       position: fixed;
       bottom: 0;
@@ -109,16 +129,16 @@
   </header>
 
   <div class="balance-section">
-    <h2>Balance: ₹<span id="balance">0</span></h2>
+    <h2>Wallet Balance: ₹<span id="balance">0</span></h2>
   </div>
 
   <div class="btn-group">
-    <button onclick="cashout()">💸 Cashout</button>
-    <button onclick="deposit()">💰 Deposit</button>
+    <button onclick="cashout()">CASHOUT</button>
+    <button onclick="deposit()">DEPOSIT</button>
   </div>
 
   <div class="transactions">
-    <h3>🎮 Game Reward History</h3>
+    <h3>Game Reward History</h3>
     <div id="history"></div>
   </div>
 
@@ -165,29 +185,31 @@
     onAuthStateChanged(auth, async (user) => {
       if (user) {
         const uid = user.uid;
-        
-        const userRef = doc(db, "users", uid);
-        const userSnap = await getDoc(userRef);
-        if (userSnap.exists()) {
-          balanceEl.textContent = userSnap.data().balance || 0;
+
+        // Get user balance
+        const userDoc = await getDoc(doc(db, "users", uid));
+        if (userDoc.exists()) {
+          balanceEl.textContent = userDoc.data().balance || 0;
         }
 
-        const q = query(collection(db, "transactions"), where("uid", "==", uid));
-        const querySnapshot = await getDocs(q);
-        if (querySnapshot.empty) {
-          historyEl.innerHTML = "<p>No transactions yet.</p>";
+        // Get transactions
+        const txQuery = query(collection(db, "transactions"), where("uid", "==", uid));
+        const txSnap = await getDocs(txQuery);
+
+        if (txSnap.empty) {
+          historyEl.innerHTML = "<p style='font-size: 0.6rem;'>No transactions found.</p>";
         } else {
-          querySnapshot.forEach((doc) => {
+          txSnap.forEach(doc => {
             const tx = doc.data();
-            const item = document.createElement("div");
-            item.classList.add("item");
-            item.innerHTML = `
-              <strong>${tx.type.toUpperCase()}</strong><br/>
-              ₹${tx.amount} - ${tx.status || "Completed"}<br/>
-              Game ID: <a href="game-stats.html?id=${tx.gameId}">${tx.gameId}</a><br/>
+            const div = document.createElement("div");
+            div.className = "item";
+            div.innerHTML = `
+              <strong>${tx.type}</strong><br>
+              ₹${tx.amount} - ${tx.status || "Completed"}<br>
+              Game ID: <a href="game-stats.html?id=${tx.gameId}">${tx.gameId}</a><br>
               ${new Date(tx.timestamp).toLocaleString()}
             `;
-            historyEl.appendChild(item);
+            historyEl.appendChild(div);
           });
         }
       } else {
@@ -197,11 +219,11 @@
 
     window.cashout = function () {
       alert("Cashout feature coming soon...");
-    };
+    }
 
     window.deposit = function () {
       alert("Deposit feature coming soon...");
-    };
+    }
   </script>
 </body>
 </html>
