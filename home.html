@@ -1,144 +1,163 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>SLJR Home</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- Google Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SLJR - Home</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet"/>
 
   <style>
-    * {
-      box-sizing: border-box;
-    }
-
     body {
       margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #0f0f0f, #ff4500, #8b0000);
-      background-size: 300% 300%;
-      animation: bgFlow 10s ease infinite;
-      color: white;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      text-align: center;
-      overflow: hidden;
-    }
-
-    @keyframes bgFlow {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-
-    h1 {
       font-family: 'Press Start 2P', monospace;
-      font-size: 20px;
-      margin-bottom: 20px;
-      text-shadow: 0 0 10px orange;
+      background-color: #ffffff;
+      color: #000;
     }
 
-    .fade-slide {
-      animation: fadeInSlide 1s ease-out forwards;
-      opacity: 0;
-      transform: translateY(20px);
+    header {
+      background-color: #ff6600;
+      color: #fff;
+      padding: 12px;
+      text-align: center;
+      font-size: 0.8rem;
+      border-bottom: 2px solid #000;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      text-shadow: 1px 1px 0 #000;
     }
 
-    @keyframes fadeInSlide {
-      0% {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(0);
-      }
+    .logo-title {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
     }
 
-    .error-box, .welcome {
-      background: rgba(0, 0, 0, 0.7);
-      padding: 20px;
-      border-radius: 15px;
-      box-shadow: 0 0 15px #ff0000;
-      max-width: 400px;
-      width: 90%;
-      display: none;
+    .logo-title img {
+      width: 30px;
+      height: 30px;
     }
 
-    .error-box h2 {
-      color: #ff5555;
-      margin-bottom: 10px;
+    .games-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      padding: 16px;
     }
 
-    .error-box p {
-      font-size: 14px;
-    }
-
-    .btn {
-      margin-top: 15px;
-      padding: 12px 25px;
-      font-size: 14px;
-      font-weight: bold;
-      background: orange;
-      color: black;
-      border: none;
+    .game-card {
+      background-color: #f2f2f2;
+      border: 2px solid #000;
       border-radius: 10px;
+      padding: 10px;
+      text-align: center;
       cursor: pointer;
-      transition: 0.3s ease;
+      transition: all 0.3s ease;
+      box-shadow: 2px 2px 0 #000;
     }
 
-    .btn:hover {
-      background: black;
-      color: orange;
-      border: 1px solid orange;
+    .game-card:hover {
+      background-color: #ffe6cc;
+      transform: scale(1.03);
     }
 
-    .welcome h2 {
-      color: #00eaff;
-      text-shadow: 0 0 5px #00eaff;
+    .game-card img {
+      width: 100%;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 6px;
     }
 
-    .welcome p {
-      font-size: 16px;
-      font-weight: bold;
+    .game-title {
+      font-size: 0.6rem;
+      margin-top: 6px;
+      color: #ff6600;
+    }
+
+    .coming-soon {
+      font-size: 0.5rem;
+      color: #888;
+      margin-top: 6px;
+    }
+
+    footer {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background-color: #fff;
+      border-top: 2px solid #000;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+      z-index: 20;
+    }
+
+    footer img {
+      width: 24px;
+      height: 24px;
+      opacity: 0.6;
+    }
+
+    footer img.active {
+      opacity: 1;
+      border-bottom: 2px solid #ff6600;
     }
   </style>
 </head>
 <body>
 
-  <h1>SLJR E-SPORTS</h1>
+  <header>
+    <div class="logo-title">
+      <img src="sljr.png" alt="Logo" />
+      <span>SLJR E-SPORTS</span>
+    </div>
+  </header>
 
-  <!-- Error for not logged in -->
-  <div class="error-box fade-slide" id="loginError">
-    <h2>Login Expired</h2>
-    <p>Your session has expired or you're not logged in. Please log in again to continue.</p>
-    <button class="btn" onclick="window.location.href='index.html'">Go to Login</button>
+  <div class="games-container">
+    <!-- Free Fire Max -->
+    <div class="game-card" onclick="location.href='tournament.html?id=FFM2025-07'">
+      <img src="freefire.jpg" alt="Free Fire Max">
+      <div class="game-title">Free Fire Max</div>
+    </div>
+
+    <!-- Coming Soon -->
+    <div class="game-card">
+      <img src="placeholder.jpg" alt="Coming Soon">
+      <div class="coming-soon">More Games<br>Coming Soon</div>
+    </div>
   </div>
 
-  <!-- Welcome if logged in -->
-  <div class="welcome fade-slide" id="welcomeBox">
-    <h2>Welcome Back 👋</h2>
-    <p id="userName">Loading...</p>
-  </div>
+  <footer>
+    <img src="home.png" class="active" alt="Home" />
+    <img src="wallet.png" alt="Wallet" onclick="location.href='redeem.html'" />
+    <img src="profile.png" alt="Profile" />
+    <img src="game-history.png" alt="History" />
+  </footer>
 
-  <script>
-    const uid = localStorage.getItem("sljr_uid");
-    const name = localStorage.getItem("sljr_name");
+  <!-- Firebase Auth Check -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-    if (uid) {
-      document.getElementById("welcomeBox").style.display = "block";
-      document.getElementById("loginError").style.display = "none";
-      document.getElementById("userName").innerText = name ? name : "Gamer";
-    } else {
-      document.getElementById("loginError").style.display = "block";
-      document.getElementById("welcomeBox").style.display = "none";
-    }
+    const firebaseConfig = {
+      apiKey: "AIzaSyA0Qhb6FpIGKqWHwo-0pOvvX7bBRh-9FHY",
+      authDomain: "sljr-e-sports.firebaseapp.com",
+      projectId: "sljr-e-sports",
+      storageBucket: "sljr-e-sports.firebasestorage.app",
+      messagingSenderId: "568709951241",
+      appId: "1:568709951241:web:75498cdedbc058c06e2dd8",
+      measurementId: "G-QQ7MWDW2VD"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+      }
+    });
   </script>
-
 </body>
 </html>
