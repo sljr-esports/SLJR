@@ -1,9 +1,13 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SLJR E-Sports Login</title>
+
+  <!-- Google Font: Pixel Style -->
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
   <style>
     body {
       margin: 0;
@@ -16,10 +20,30 @@
       justify-content: center;
       text-align: center;
     }
+
     h1 {
-      margin: 10px 0;
+      margin: 12px 0;
+      font-weight: bold;
+      text-shadow: 2px 2px 0 #00000020;
     }
+
+    h1:nth-child(1) {
+      font-size: 1.3rem;
+      color: #ff6600;
+    }
+
+    h1:nth-child(2) {
+      font-size: 1rem;
+      color: #222;
+    }
+
+    h1:nth-child(3) {
+      font-size: 1.2rem;
+      color: #00cfff;
+    }
+
     .login-btn {
+      margin-top: 40px;
       background-color: white;
       border: 2px solid #ff6600;
       border-radius: 8px;
@@ -32,17 +56,20 @@
       align-items: center;
       gap: 10px;
       box-shadow: 3px 3px 0px #000;
-      margin-top: 20px;
+      transition: all 0.3s ease;
     }
+
     .login-btn:hover {
       background-color: #ff6600;
       color: white;
       box-shadow: 0 0 10px #ff6600;
     }
+
     .login-btn img {
       width: 16px;
       height: 16px;
     }
+
     .footer {
       position: absolute;
       bottom: 15px;
@@ -52,14 +79,19 @@
   </style>
 </head>
 <body>
+
   <h1>SLJR E-SPORTS</h1>
   <h1>TOURNAMENT</h1>
-  <h1 style="color:#00cfff">FOR GEN-Z</h1>
+  <h1>FOR GEN-Z</h1>
+
   <button class="login-btn" onclick="googleLogin()">
     <img src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Google_Icon.png" alt="Google" />
     SIGN IN WITH GOOGLE
   </button>
-  <div class="footer">🚀 Enter the Arena | SLJR Gaming</div>  <script type="module">
+
+  <div class="footer">🚀 Enter the Arena | SLJR Gaming</div>
+
+  <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -95,22 +127,23 @@
         const deviceId = getDeviceId();
 
         const userRef = doc(db, "users", uid);
-        const docSnap = await getDoc(userRef);
+        const userSnap = await getDoc(userRef);
 
-        if (!docSnap.exists()) {
+        if (!userSnap.exists()) {
           await setDoc(userRef, { email: user.email, deviceId });
           window.location.href = "home.html";
         } else {
-          const storedId = docSnap.data().deviceId;
+          const storedId = userSnap.data().deviceId;
           if (storedId === deviceId) {
             window.location.href = "home.html";
           } else {
-            alert("This account is already used on another device.");
+            window.location.href = "blocked.html";
           }
         }
       } catch (error) {
         alert("Login failed: " + error.message);
       }
     };
-  </script></body>
+  </script>
+</body>
 </html>
