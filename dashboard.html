@@ -1,11 +1,161 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard - SLJR E-Sports</title>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">  <!-- Firebase SDK -->  <script type="module">
+  <meta charset="UTF-8" />
+  <title>SLJR Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: 'Press Start 2P', monospace;
+      background: #fff;
+      color: #222;
+    }
+
+    header {
+      text-align: center;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #ff6600;
+    }
+
+    .user-info {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .user-info img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      border: 2px solid #ff6600;
+    }
+
+    .user-info h2 {
+      margin: 10px 0 5px;
+      font-size: 0.8rem;
+    }
+
+    .user-info p {
+      font-size: 0.6rem;
+      color: #666;
+    }
+
+    .balance {
+      text-align: center;
+      font-size: 0.9rem;
+      color: #28a745;
+      margin: 15px 0;
+    }
+
+    .referral {
+      border: 2px dashed #ff6600;
+      border-radius: 10px;
+      padding: 15px;
+      margin: 20px 0;
+      text-align: center;
+    }
+
+    .referral input {
+      width: 90%;
+      max-width: 300px;
+      padding: 8px;
+      margin: 5px 0;
+      font-size: 0.6rem;
+      font-family: monospace;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    button.copy-btn {
+      font-size: 0.6rem;
+      margin-top: 5px;
+      background-color: #ff6600;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .section {
+      margin-top: 30px;
+    }
+
+    .section h3 {
+      font-size: 0.7rem;
+      color: #ff6600;
+      margin-bottom: 5px;
+    }
+
+    .section p {
+      font-size: 0.6rem;
+      color: #444;
+    }
+
+    .logout-btn {
+      margin-top: 30px;
+      display: block;
+      width: 100%;
+      max-width: 220px;
+      margin-left: auto;
+      margin-right: auto;
+      padding: 10px;
+      font-size: 0.6rem;
+      font-family: 'Press Start 2P';
+      background: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>SLJR E-SPORTS</h1>
+  </header>
+
+  <div class="user-info">
+    <img id="photo" src="" alt="Profile" />
+    <h2 id="name">Player</h2>
+    <p id="email">email@example.com</p>
+  </div>
+
+  <div class="balance">
+    Balance: ₹<span id="balance">0</span>
+  </div>
+
+  <div class="referral">
+    <p>Your Referral Code:</p>
+    <input id="uid" readonly />
+    <p>Referral Link:</p>
+    <input id="refLink" readonly />
+    <button class="copy-btn" onclick="copyReferral()">📋 Copy Referral Link</button>
+  </div>
+
+  <div class="section">
+    <h3>How to Participate?</h3>
+    <p>Join tournaments from the Home page. Follow instructions. Play. Earn.</p>
+  </div>
+
+  <div class="section">
+    <h3>Contact Us</h3>
+    <p>Email us at support@sljr.com or message on Instagram @sljr_esports</p>
+  </div>
+
+  <div class="section">
+    <h3>FAQ</h3>
+    <p>Q: How do I join?<br>A: Open Home, pick a game, tap Join.</p>
+  </div>
+
+  <button class="logout-btn" onclick="logout()">Logout</button>
+
+  <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyA0Qhb6FpIGKqWHwo-0pOvvX7bBRh-9FHY",
@@ -13,154 +163,52 @@
       projectId: "sljr-e-sports",
       storageBucket: "sljr-e-sports.firebasestorage.app",
       messagingSenderId: "568709951241",
-      appId: "1:568709951241:web:75498cdedbc058c06e2dd8",
-      measurementId: "G-QQ7MWDW2VD"
+      appId: "1:568709951241:web:75498cdedbc058c06e2dd8"
     };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const db = getFirestore(app);
 
-    onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        window.location.href = "index.html";
+    const uidEl = document.getElementById("uid");
+    const linkEl = document.getElementById("refLink");
+    const nameEl = document.getElementById("name");
+    const emailEl = document.getElementById("email");
+    const photoEl = document.getElementById("photo");
+    const balanceEl = document.getElementById("balance");
+
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const uid = user.uid;
+        uidEl.value = uid;
+        linkEl.value = `${location.origin}/index.html?ref=${uid}`;
+        nameEl.textContent = user.displayName || "Gamer";
+        emailEl.textContent = user.email;
+        photoEl.src = user.photoURL || "";
+
+        const userRef = doc(db, "users", uid);
+        const snap = await getDoc(userRef);
+        if (snap.exists()) {
+          balanceEl.textContent = snap.data().balance || 0;
+        } else {
+          balanceEl.textContent = 0;
+        }
       } else {
-        document.getElementById("user-name").textContent = user.displayName;
-        document.getElementById("user-email").textContent = user.email;
-        document.getElementById("user-pic").src = user.photoURL;
+        location.href = "index.html";
       }
     });
 
-    window.logoutUser = function() {
+    window.copyReferral = function () {
+      linkEl.select();
+      document.execCommand("copy");
+      alert("Referral link copied!");
+    };
+
+    window.logout = function () {
       signOut(auth).then(() => {
-        window.location.href = "index.html";
+        location.href = "index.html";
       });
     };
-  </script>  <style>
-    body {
-      margin: 0;
-      font-family: 'Press Start 2P', monospace;
-      background: #ffffff;
-      padding-bottom: 80px;
-    }
-
-    header {
-      background: white;
-      padding: 10px 0;
-      text-align: center;
-      border-bottom: 2px solid orange;
-    }
-
-    header h1 {
-      color: #ff6600;
-      font-size: 1rem;
-      margin: 0;
-    }
-
-    .container {
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .avatar {
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      margin-bottom: 10px;
-      border: 2px solid #ff6600;
-    }
-
-    .info {
-      font-size: 0.7rem;
-      margin: 8px 0;
-      color: #333;
-      text-align: center;
-    }
-
-    .btn-group {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 20px;
-      width: 80%;
-    }
-
-    .btn {
-      padding: 12px;
-      font-size: 0.6rem;
-      font-family: 'Press Start 2P', monospace;
-      background: #ff6600;
-      color: #fff;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      text-align: center;
-      box-shadow: 2px 2px 0 #000;
-    }
-
-    .btn:hover {
-      background: #e65c00;
-    }
-
-    .nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      background: white;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      padding: 10px 0;
-      border-top: 1px solid #ddd;
-      z-index: 999;
-    }
-
-    .nav-icon {
-      width: 24px;
-      height: 24px;
-      opacity: 0.7;
-      transition: all 0.3s ease;
-    }
-
-    .nav-icon.active {
-      opacity: 1;
-      border-bottom: 2px solid orange;
-      border-radius: 4px;
-    }
-  </style></head>
-<body>
-  <header>
-    <h1>SLJR E-SPORTS</h1>
-  </header>  <div class="container">
-    <img id="user-pic" class="avatar" src="" alt="User">
-    <div class="info" id="user-name">Name</div>
-    <div class="info" id="user-email">Email</div><div class="btn-group">
-  <button class="btn" onclick="location.href='refferal.html'">🎁 My Referral</button>
-  <button class="btn" onclick="location.href='faq.html'">❓ FAQ</button>
-  <button class="btn" onclick="location.href='contact.html'">📞 Contact Us</button>
-  <button class="btn" onclick="logoutUser()">🚪 Logout</button>
-</div>
-
-  </div>  <div class="nav">
-    <a href="home.html">
-      <img src="home.png" alt="Home" class="nav-icon" id="home-icon" />
-    </a>
-    <a href="redeem.html">
-      <img src="wallet.png" alt="Wallet" class="nav-icon" id="wallet-icon" />
-    </a>
-    <a href="dashboard.html">
-      <img src="profile.png" alt="Dashboard" class="nav-icon" id="dashboard-icon" />
-    </a>
-    <a href="match-history.html">
-      <img src="game-history.png" alt="Match History" class="nav-icon" id="history-icon" />
-    </a>
-  </div>  <script>
-    const path = window.location.pathname;
-    if (path.includes("home")) document.getElementById("home-icon")?.classList.add("active");
-    if (path.includes("redeem")) document.getElementById("wallet-icon")?.classList.add("active");
-    if (path.includes("dashboard")) document.getElementById("dashboard-icon")?.classList.add("active");
-    if (path.includes("match-history")) document.getElementById("history-icon")?.classList.add("active");
-  </script></body>
+  </script>
+</body>
 </html>
