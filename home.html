@@ -1,155 +1,97 @@
-<!DOCTYPE html>
-<html lang="en">
+<!-- ✅ Full Updated Home Page (home.html) with Universal White Navbar & Firebase Auth Check --><!DOCTYPE html><html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Home - SLJR E-Sports</title>
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";const firebaseConfig = {
+  apiKey: "AIzaSyA0Qhb6FpIGKqWHwo-0pOvvX7bBRh-9FHY",
+  authDomain: "sljr-e-sports.firebaseapp.com",
+  projectId: "sljr-e-sports",
+  storageBucket: "sljr-e-sports.firebasestorage.app",
+  messagingSenderId: "568709951241",
+  appId: "1:568709951241:web:75498cdedbc058c06e2dd8",
+  measurementId: "G-QQ7MWDW2VD"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    window.location.href = "index.html";
+  }
+});
+
+  </script>
   <style>
     body {
       margin: 0;
       font-family: 'Press Start 2P', monospace;
       background: #fff;
-      color: #000;
-      padding-bottom: 90px;
-    }
-
-    .header {
-      background: #fff;
+      padding-bottom: 70px;
       text-align: center;
-      padding: 14px;
-      border-bottom: 1px solid #ccc;
     }
-
-    .header h1 {
-      font-size: 0.9rem;
-      margin: 0;
+    h1 {
       color: #ff6600;
+      font-size: 1rem;
+      margin: 20px;
     }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 15px;
-      padding: 20px;
+    .game-box {
+      margin: 20px;
+      border: 2px solid #eee;
+      padding: 10px;
+      border-radius: 8px;
     }
-
-    .game-card {
-      border: 1px solid #ccc;
-      border-radius: 10px;
-      overflow: hidden;
-      text-align: center;
-      transition: 0.3s ease;
-      background: #fff;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-
-    .game-card:hover {
-      transform: scale(1.02);
-    }
-
-    .game-card img {
-      width: 100%;
-      height: 120px;
-      object-fit: cover;
-    }
-
-    .game-card h3 {
-      font-size: 0.6rem;
-      margin: 10px 0;
-    }
-
-    .navbar {
+    .nav {
       position: fixed;
       bottom: 0;
+      left: 0;
       width: 100%;
       background: white;
       display: flex;
       justify-content: space-around;
+      align-items: center;
       padding: 10px 0;
-      border-top: 1px solid #ccc;
+      border-top: 1px solid #ddd;
       z-index: 999;
     }
-
-    .nav-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      font-size: 0.5rem;
-      color: #333;
+    .nav-icon {
+      width: 24px;
+      height: 24px;
+      opacity: 0.7;
+      transition: all 0.3s ease;
     }
-
-    .nav-item img {
-      width: 22px;
-      height: 22px;
-      margin-bottom: 4px;
-    }
-
-    .active {
-      color: orange;
+    .nav-icon.active {
+      opacity: 1;
+      border-bottom: 2px solid orange;
+      border-radius: 4px;
     }
   </style>
 </head>
 <body>
-
-  <div class="header">
-    <h1>SLJR E-SPORTS</h1>
-  </div>
-
-  <div class="grid">
-    <div class="game-card" onclick="location.href='freefire.html'">
-      <img src="Freefire.jpg" alt="Free Fire Max"/>
-      <h3>Free Fire Max</h3>
-    </div>
-    <div class="game-card">
-      <img src="BGMI.jpg" alt="BGMI Coming Soon"/>
-      <h3>BGMI (Coming Soon)</h3>
-    </div>
-  </div>
-
-  <!-- Fixed Bottom Navigation -->
-  <div class="navbar">
-    <div class="nav-item active" onclick="location.href='home.html'">
-      <img src="home.png" alt="Home"/>
-      Home
-    </div>
-    <div class="nav-item" onclick="location.href='redeem.html'">
-      <img src="wallet.png" alt="Wallet"/>
-      Wallet
-    </div>
-    <div class="nav-item" onclick="location.href='dashboard.html'">
-      <img src="profile.png" alt="Dashboard"/>
-      Dashboard
-    </div>
-    <div class="nav-item" onclick="location.href='match-history.html'">
-      <img src="game-history.png" alt="Match History"/>
-      History
-    </div>
-  </div>
-
-  <!-- Firebase auth check -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyA0Qhb6FpIGKqWHwo-0pOvvX7bBRh-9FHY",
-      authDomain: "sljr-e-sports.firebaseapp.com",
-      projectId: "sljr-e-sports",
-      storageBucket: "sljr-e-sports.firebasestorage.app",
-      messagingSenderId: "568709951241",
-      appId: "1:568709951241:web:75498cdedbc058c06e2dd8"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-
-    onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        window.location.href = "index.html";
-      }
-    });
-  </script>
-
-</body>
+  <h1>🎮 SLJR E-SPORTS GAMES</h1>
+  <div class="game-box">Free Fire Max</div>
+  <div class="game-box">BGMI - Coming Soon</div>  <!-- ✅ Bottom Navigation -->  <div class="nav">
+    <a href="home.html">
+      <img src="home.png" alt="Home" class="nav-icon" id="home-icon" />
+    </a>
+    <a href="redeem.html">
+      <img src="wallet.png" alt="Wallet" class="nav-icon" id="wallet-icon" />
+    </a>
+    <a href="dashboard.html">
+      <img src="profile.png" alt="Dashboard" class="nav-icon" id="dashboard-icon" />
+    </a>
+    <a href="match-history.html">
+      <img src="game-history.png" alt="Match History" class="nav-icon" id="history-icon" />
+    </a>
+  </div>  <script>
+    const path = window.location.pathname;
+    if (path.includes("home")) document.getElementById("home-icon")?.classList.add("active");
+    if (path.includes("redeem")) document.getElementById("wallet-icon")?.classList.add("active");
+    if (path.includes("dashboard")) document.getElementById("dashboard-icon")?.classList.add("active");
+    if (path.includes("match-history")) document.getElementById("history-icon")?.classList.add("active");
+  </script></body>
 </html>
