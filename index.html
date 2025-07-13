@@ -2,74 +2,22 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SLJR E-Sports Login</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet" />
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Orbitron', sans-serif;
-      background: linear-gradient(to bottom, #1c1c1c, #ff6f00);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      color: white;
-      flex-direction: column;
-      text-align: center;
-    }
 
-    h1 {
-      font-size: 32px;
-      margin-bottom: 10px;
-      animation: slideDown 1s ease-out;
-    }
+  <!-- Pixel Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 
-    h2 {
-      color: #5ecfff;
-      margin-bottom: 40px;
-    }
-
-    #googleLogin {
-      background: white;
-      color: black;
-      font-size: 16px;
-      padding: 12px 20px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: all 0.3s ease;
-    }
-
-    #googleLogin:hover {
-      background-color: #ff6f00;
-      color: white;
-    }
-
-    @keyframes slideDown {
-      from { transform: translateY(-30px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-  </style>
-</head>
-<body>
-
-  <h1>SLJR E-SPORTS</h1>
-  <h2>TOURNAMENT FOR GEN-Z</h2>
-
-  <button id="googleLogin">Sign in with Google</button>
-
-  <!-- Firebase SDK & Auth -->
+  <!-- Firebase -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-    import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyA0Qhb6FpIGKqWHwo-0pOvvX7bBRh-9FHY",
       authDomain: "sljr-e-sports.firebaseapp.com",
       projectId: "sljr-e-sports",
-      storageBucket: "sljr-e-sports.appspot.com",
+      storageBucket: "sljr-e-sports.firebasestorage.app",
       messagingSenderId: "568709951241",
       appId: "1:568709951241:web:75498cdedbc058c06e2dd8",
       measurementId: "G-QQ7MWDW2VD"
@@ -79,26 +27,128 @@
     const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
 
-    document.getElementById("googleLogin").addEventListener("click", () => {
+    window.googleLogin = function () {
       signInWithPopup(auth, provider)
-        .then((result) => {
-          const user = result.user;
-          // Store user in localStorage
-          localStorage.setItem("sljr_uid", user.uid);
-          localStorage.setItem("sljr_name", user.displayName);
-          // Redirect to home
+        .then(() => {
           window.location.href = "home.html";
         })
         .catch((error) => {
           alert("Login failed: " + error.message);
         });
-    });
-
-    // Optional: auto-redirect if already logged in
-    if (localStorage.getItem("sljr_uid")) {
-      window.location.href = "home.html";
-    }
+    };
   </script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Press Start 2P', monospace;
+      background: #ffffff;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 12px 0;
+      padding: 10px 20px;
+      font-weight: bold;
+      opacity: 0;
+      transform: translateY(40px);
+      animation: slideUp 0.6s forwards, glowShadow 2s ease-in-out infinite alternate;
+    }
+
+    h1:nth-child(1) {
+      font-size: 1.6rem;
+      color: #ff6600;
+      -webkit-text-stroke: 1px #000;
+      text-shadow: 2px 2px 5px #000;
+      animation-delay: 0.3s, 0.3s;
+    }
+
+    h1:nth-child(2) {
+      font-size: 1.2rem;
+      color: #222;
+      -webkit-text-stroke: 1px #888;
+      text-shadow: 2px 2px 4px #aaa;
+      animation-delay: 0.6s, 0.6s;
+    }
+
+    h1:nth-child(3) {
+      font-size: 1.4rem;
+      color: #00cfff;
+      -webkit-text-stroke: 1px #000;
+      text-shadow: 2px 2px 5px #001f3f;
+      animation-delay: 0.9s, 0.9s;
+    }
+
+    @keyframes slideUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes glowShadow {
+      0% {
+        text-shadow: 2px 2px 4px #000;
+      }
+      100% {
+        text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.4);
+      }
+    }
+
+    .login-btn {
+      margin-top: 40px;
+      background-color: white;
+      border: 2px solid #ff6600;
+      border-radius: 8px;
+      padding: 12px 20px;
+      font-size: 0.75rem;
+      font-family: 'Press Start 2P', monospace;
+      color: #ff6600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.3s ease;
+      box-shadow: 3px 3px 0px #000;
+    }
+
+    .login-btn:hover {
+      background-color: #ff6600;
+      color: white;
+      box-shadow: 0 0 10px #ff6600;
+    }
+
+    .login-btn img {
+      width: 16px;
+      height: 16px;
+    }
+
+    .footer {
+      position: absolute;
+      bottom: 15px;
+      font-size: 0.55rem;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>SLJR E-SPORTS</h1>
+  <h1>TOURNAMENT</h1>
+  <h1>FOR GEN-Z</h1>
+
+  <button class="login-btn" onclick="googleLogin()">
+    <img src="google-logo.png" alt="Google" />
+    SIGN IN WITH GOOGLE
+  </button>
+
+  <div class="footer">🚀 Enter the Arena | SLJR Gaming</div>
 
 </body>
 </html>
