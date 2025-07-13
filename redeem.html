@@ -1,159 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Wallet - SLJR E-Sports</title>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Press Start 2P', monospace;
-      background: #fff;
-      color: #000;
-      padding-bottom: 90px;
-    }
-
-    .header {
-      text-align: center;
-      background: #fff3e0;
-      padding: 15px;
-      border-bottom: 2px solid #ff6600;
-    }
-
-    .header h1 {
-      font-size: 0.9rem;
-      color: #ff6600;
-      margin: 0;
-    }
-
-    .wallet-section {
-      text-align: center;
-      padding: 20px;
-    }
-
-    .wallet-section h2 {
-      font-size: 0.8rem;
-      color: green;
-    }
-
-    .wallet-btns {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      margin: 20px 0;
-    }
-
-    .wallet-btns button {
-      background: #ff6600;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 10px;
-      font-size: 0.6rem;
-      font-family: 'Press Start 2P', monospace;
-      cursor: pointer;
-    }
-
-    .history {
-      padding: 0 15px;
-    }
-
-    .history h3 {
-      font-size: 0.7rem;
-      margin-top: 0;
-      color: #ff6600;
-      border-bottom: 1px solid #ff6600;
-      padding-bottom: 5px;
-    }
-
-    .tx-card {
-      font-size: 0.6rem;
-      background: #fff8f2;
-      padding: 12px;
-      margin: 10px 0;
-      border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-
-    .tx-card a {
-      color: #007bff;
-      text-decoration: underline;
-    }
-
-    .navbar {
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      background: #000;
-      display: flex;
-      justify-content: space-around;
-      padding: 10px 0;
-      border-top: 2px solid #ff6600;
-    }
-
-    .nav-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      color: white;
-      font-size: 0.5rem;
-    }
-
-    .nav-item img {
-      width: 24px;
-      height: 24px;
-      margin-bottom: 5px;
-    }
-
-    .active {
-      color: orange;
-    }
-  </style>
-</head>
-<body>
-
-  <div class="header">
-    <h1>SLJR Wallet</h1>
-  </div>
-
-  <div class="wallet-section">
-    <h2>Balance: ₹<span id="wallet">--</span></h2>
-    <div class="wallet-btns">
-      <button onclick="alert('Deposit coming soon')">Deposit</button>
-      <button onclick="alert('Cashout feature coming soon')">Cashout</button>
-    </div>
-  </div>
-
-  <div class="history">
-    <h3>Game Reward History</h3>
-    <div id="tx-list">Loading...</div>
-  </div>
-
-  <div class="navbar">
-    <div class="nav-item" onclick="location.href='home.html'">
-      <img src="home.png" alt="Home"/>
-      Home
-    </div>
-    <div class="nav-item active" onclick="location.href='redeem.html'">
-      <img src="wallet.png" alt="Wallet"/>
-      Wallet
-    </div>
-    <div class="nav-item" onclick="location.href='dashboard.html'">
-      <img src="profile.png" alt="Dashboard"/>
-      Dashboard
-    </div>
-    <div class="nav-item" onclick="location.href='match-history.html'">
-      <img src="game-history.png" alt="Match History"/>
-      History
-    </div>
-  </div>
-
-  <!-- Firebase -->
-  <script type="module">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redeem - SLJR E-Sports</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">  <!-- Firebase -->  <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyA0Qhb6FpIGKqWHwo-0pOvvX7bBRh-9FHY",
@@ -161,7 +14,8 @@
       projectId: "sljr-e-sports",
       storageBucket: "sljr-e-sports.firebasestorage.app",
       messagingSenderId: "568709951241",
-      appId: "1:568709951241:web:75498cdedbc058c06e2dd8"
+      appId: "1:568709951241:web:75498cdedbc058c06e2dd8",
+      measurementId: "G-QQ7MWDW2VD"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -171,38 +25,139 @@
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
         window.location.href = "index.html";
-        return;
-      }
-
-      const uid = user.uid;
-      const userRef = doc(db, "users", uid);
-      const userSnap = await getDoc(userRef);
-
-      if (userSnap.exists()) {
-        const wallet = userSnap.data().wallet || 0;
-        document.getElementById("wallet").innerText = wallet;
-      }
-
-      const q = query(collection(db, "transactions"), where("uid", "==", uid), where("type", "==", "reward"));
-      const txs = await getDocs(q);
-      const txList = document.getElementById("tx-list");
-
-      if (txs.empty) {
-        txList.innerHTML = "<p style='font-size:0.6rem;'>No rewards yet.</p>";
       } else {
-        txList.innerHTML = "";
-        txs.forEach((doc) => {
-          const d = doc.data();
-          txList.innerHTML += `
-            <div class="tx-card">
-              Game ID: <a href="game-stats.html?id=${d.gameId}">${d.gameId}</a><br/>
-              Amount: ₹${d.amount} <br/>
-              Date: ${new Date(d.timestamp).toLocaleString()}
-            </div>`;
+        document.getElementById("balance").textContent = "₹100"; // Example value
+
+        const q = query(collection(db, "rewards"), where("uid", "==", user.uid));
+        const querySnapshot = await getDocs(q);
+        const list = document.getElementById("history");
+        list.innerHTML = "";
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          const li = document.createElement("li");
+          li.textContent = `${data.type.toUpperCase()} | ₹${data.amount} | Game ID: ${data.gameId}`;
+          li.onclick = () => window.location.href = `game-stats.html?gameId=${data.gameId}`;
+          list.appendChild(li);
         });
       }
     });
-  </script>
+  </script>  <style>
+    body {
+      margin: 0;
+      font-family: 'Press Start 2P', monospace;
+      background: #fff;
+      padding-bottom: 80px;
+    }
 
-</body>
+    header {
+      background: white;
+      padding: 10px 0;
+      text-align: center;
+      border-bottom: 2px solid orange;
+    }
+
+    header h1 {
+      color: #ff6600;
+      font-size: 1rem;
+      margin: 0;
+    }
+
+    .container {
+      padding: 20px;
+      text-align: center;
+    }
+
+    .balance-box {
+      background: #ffe8d4;
+      padding: 12px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      font-size: 0.6rem;
+    }
+
+    .btn {
+      margin: 8px;
+      padding: 10px 20px;
+      font-size: 0.55rem;
+      font-family: 'Press Start 2P', monospace;
+      background: #ff6600;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      font-size: 0.6rem;
+    }
+
+    li {
+      padding: 10px;
+      margin: 5px 0;
+      background: #f5f5f5;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: white;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 10px 0;
+      border-top: 1px solid #ddd;
+      z-index: 999;
+    }
+
+    .nav-icon {
+      width: 24px;
+      height: 24px;
+      opacity: 0.7;
+      transition: all 0.3s ease;
+    }
+
+    .nav-icon.active {
+      opacity: 1;
+      border-bottom: 2px solid orange;
+      border-radius: 4px;
+    }
+  </style></head>
+<body>
+  <header>
+    <h1>SLJR E-SPORTS</h1>
+  </header>  <div class="container">
+    <div class="balance-box">Current Balance: <span id="balance">₹0</span></div>
+    <button class="btn">Deposit</button>
+    <button class="btn">Cashout</button><h2 style="font-size: 0.7rem; margin-top: 20px;">🎮 Game Reward History</h2>
+<ul id="history">
+  <li>Loading...</li>
+</ul>
+
+  </div>  <div class="nav">
+    <a href="home.html">
+      <img src="home.png" alt="Home" class="nav-icon" id="home-icon" />
+    </a>
+    <a href="redeem.html">
+      <img src="wallet.png" alt="Wallet" class="nav-icon" id="wallet-icon" />
+    </a>
+    <a href="dashboard.html">
+      <img src="profile.png" alt="Dashboard" class="nav-icon" id="dashboard-icon" />
+    </a>
+    <a href="match-history.html">
+      <img src="game-history.png" alt="Match History" class="nav-icon" id="history-icon" />
+    </a>
+  </div>  <script>
+    const path = window.location.pathname;
+    if (path.includes("home")) document.getElementById("home-icon")?.classList.add("active");
+    if (path.includes("redeem")) document.getElementById("wallet-icon")?.classList.add("active");
+    if (path.includes("dashboard")) document.getElementById("dashboard-icon")?.classList.add("active");
+    if (path.includes("match-history")) document.getElementById("history-icon")?.classList.add("active");
+  </script></body>
 </html>
