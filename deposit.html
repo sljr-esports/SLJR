@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Deposit - SLJR</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Press Start 2P', monospace;
+      background: #ffffff;
+      color: #111;
+      padding: 20px;
+      padding-bottom: 80px;
+    }
+
+    header {
+      text-align: center;
+      padding: 15px 0;
+      border-bottom: 2px solid #ff6600;
+    }
+
+    header h1 {
+      font-size: 1rem;
+      color: #ff6600;
+      margin: 0;
+    }
+
+    .qr-box {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    #qrcode {
+      margin: auto;
+      width: 180px;
+      height: 180px;
+      border: 4px solid #ff6600;
+      border-radius: 10px;
+      padding: 10px;
+    }
+
+    .form {
+      margin-top: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      padding: 0 20px;
+    }
+
+    .form input {
+      padding: 12px;
+      font-size: 0.6rem;
+      font-family: 'Press Start 2P', monospace;
+      border: 2px solid #ff6600;
+      border-radius: 6px;
+      outline: none;
+    }
+
+    .form button {
+      padding: 12px;
+      background-color: #ff6600;
+      color: white;
+      border: none;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.6rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    .form button:hover {
+      background-color: #e65000;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: white;
+      border-top: 1px solid #ddd;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      height: 60px;
+      z-index: 100;
+    }
+
+    .bottom-nav a {
+      text-align: center;
+      font-size: 0.55rem;
+      color: #222;
+      text-decoration: none;
+    }
+
+    .bottom-nav a.active {
+      color: #ff6600;
+    }
+
+    .bottom-nav img {
+      width: 22px;
+      height: 22px;
+      margin-bottom: 2px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>SLJR E-SPORTS</h1>
+  </header>
+
+  <div class="qr-box">
+    <div id="qrcode"></div>
+    <p style="font-size: 0.5rem; margin-top: 10px;">Scan to Pay: <br>8104516653@fam</p>
+  </div>
+
+  <div class="form">
+    <input type="number" id="amount" placeholder="Enter Amount (₹)" />
+    <input type="text" id="utr" placeholder="Enter UTR (Transaction ID)" />
+    <button onclick="submitDeposit()">SUBMIT</button>
+  </div>
+
+  <div class="bottom-nav">
+    <a href="home.html">
+      <img src="home.png" alt="Home" />
+      <div>Home</div>
+    </a>
+    <a href="redeem.html" class="active">
+      <img src="wallet.png" alt="Wallet" />
+      <div>Wallet</div>
+    </a>
+    <a href="dashboard.html">
+      <img src="profile.png" alt="Dashboard" />
+      <div>Dashboard</div>
+    </a>
+    <a href="match-history.html">
+      <img src="game-history.png" alt="History" />
+      <div>History</div>
+    </a>
+  </div>
+
+  <script>
+    // Generate QR code
+    const upiUrl = "upi://pay?pa=8104516653@fam&pn=RAJ SHARMA&am=5.0";
+    QRCode.toCanvas(document.getElementById('qrcode'), upiUrl, { width: 180 }, function (error) {
+      if (error) console.error(error);
+    });
+
+    function submitDeposit() {
+      const amount = document.getElementById('amount').value.trim();
+      const utr = document.getElementById('utr').value.trim();
+      if (!amount || !utr) {
+        alert("Please fill both fields");
+        return;
+      }
+
+      // Here you can connect to Firebase and store the deposit data
+      alert("Deposit submitted for review!\nAmount: ₹" + amount + "\nUTR: " + utr);
+    }
+  </script>
+</body>
+</html>
