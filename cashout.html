@@ -13,26 +13,39 @@
       padding-bottom: 80px;
       color: #222;
     }
+
     header {
       text-align: center;
       padding: 15px 0;
       border-bottom: 2px solid #ff6600;
       background: white;
     }
+
     header h1 {
       font-size: 1rem;
       color: #ff6600;
       margin: 0;
     }
+
     .container {
       padding: 20px;
     }
+
     .balance {
       font-size: 0.8rem;
       color: green;
-      margin-bottom: 20px;
+      margin-bottom: 15px;
     }
-    select, input[type="text"], input[type="number"] {
+
+    .upi-image {
+      width: 100%;
+      height: auto;
+      margin-bottom: 20px;
+      border: 2px solid #ff6600;
+      border-radius: 8px;
+    }
+
+    input[type="text"], input[type="number"] {
       width: 100%;
       padding: 10px;
       margin-bottom: 15px;
@@ -41,6 +54,7 @@
       font-family: monospace;
       font-size: 0.75rem;
     }
+
     button {
       width: 100%;
       padding: 10px;
@@ -52,19 +66,23 @@
       cursor: pointer;
       font-size: 0.65rem;
     }
+
     .history {
       margin-top: 30px;
     }
+
     .history h3 {
       font-size: 0.8rem;
       margin-bottom: 10px;
     }
+
     .history-entry {
       border: 1px solid #ccc;
       padding: 8px;
       margin-bottom: 10px;
       font-size: 0.6rem;
     }
+
     .bottom-nav {
       position: fixed;
       bottom: 0;
@@ -78,15 +96,18 @@
       height: 60px;
       z-index: 100;
     }
+
     .bottom-nav a {
       text-align: center;
       font-size: 0.55rem;
       color: #222;
       text-decoration: none;
     }
+
     .bottom-nav a.active {
       color: #ff6600;
     }
+
     .bottom-nav img {
       width: 22px;
       height: 22px;
@@ -98,30 +119,18 @@
   <header>
     <h1>SLJR E-SPORTS</h1>
   </header>
+
   <div class="container">
     <div class="balance">Balance: ₹<span id="balance">0</span></div>
 
-    <select id="method">
-      <option value="upi">UPI</option>
-      <option value="redeem">Redeem Code</option>
-    </select>
+    <img src="upi.jpg" alt="UPI Payment" class="upi-image" />
 
-    <div id="upi-section">
-      <input type="text" id="upiId" placeholder="Enter UPI ID" />
-      <input type="number" id="upiAmount" placeholder="Enter Amount" />
-      <button onclick="cashoutUPI()">Withdraw via UPI</button>
-    </div>
-
-    <div id="redeem-section" style="display:none;">
-      <input type="text" id="email" placeholder="Enter Email" />
-      <input type="number" id="redeemAmount" placeholder="Enter Amount" />
-      <button onclick="cashoutRedeem()">Withdraw via Redeem</button>
-    </div>
+    <input type="text" id="upiId" placeholder="Enter your UPI ID" />
+    <input type="number" id="amount" placeholder="Enter amount (₹50 - ₹5000)" />
+    <button onclick="submitWithdrawal()">Submit Withdrawal</button>
 
     <div class="history">
-      <h3>Redeem History</h3>
-      <div id="redeem-history"></div>
-      <h3>UPI History</h3>
+      <h3>UPI Withdrawal History</h3>
       <div id="upi-history"></div>
     </div>
   </div>
@@ -131,7 +140,7 @@
       <img src="home.png" alt="Home" />
       <div>Home</div>
     </a>
-    <a href="redeem.html" class="active">
+    <a href="redeem.html">
       <img src="wallet.png" alt="Wallet" />
       <div>Wallet</div>
     </a>
@@ -145,6 +154,7 @@
     </a>
   </div>
 
+  <!-- Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -162,92 +172,63 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
+
     let currentUser;
 
     onAuthStateChanged(auth, async (user) => {
-      if (!user) return (window.location.href = "index.html");
+      if (!user) return window.location.href = "index.html";
       currentUser = user;
-      const userRef = doc(db, "users", user.uid);
-      const userSnap = await getDoc(userRef);
-      const data = userSnap.data();
+      const ref = doc(db, "users", user.uid);
+      const snap = await getDoc(ref);
+      const data = snap.data();
       document.getElementById("balance").textContent = data.balance || 0;
-      loadHistory(data);
+      showHistory(data.upiHistory || []);
     });
 
-    document.getElementById("method").addEventListener("change", (e) => {
-      document.getElementById("upi-section").style.display = e.target.value === 'upi' ? 'block' : 'none';
-      document.getElementById("redeem-section").style.display = e.target.value === 'redeem' ? 'block' : 'none';
-    });
-
-    async function cashoutUPI() {
-      const upiId = document.getElementById("upiId").value;
-      const amount = parseInt(document.getElementById("upiAmount").value);
-      if (!upiId.includes("@")) return alert("UPI ID must contain '@'");
+    async function submitWithdrawal() {
+      const upiId = document.getElementById("upiId").value.trim();
+      const amount = parseInt(document.getElementById("amount").value);
+      if (!upiId.includes("@")) return alert("Enter a valid UPI ID.");
       if (amount < 50 || amount > 5000) return alert("Amount must be between ₹50 and ₹5000");
 
       const userRef = doc(db, "users", currentUser.uid);
-      const userSnap = await getDoc(userRef);
-      const data = userSnap.data();
-      if ((data.upiHistory || []).some(r => r.status === "Pending")) return alert("You already have a pending UPI withdrawal.");
+      const snap = await getDoc(userRef);
+      const data = snap.data();
 
-      if (data.balance >= amount) {
-        await updateDoc(userRef, {
-          balance: data.balance - amount,
-          upiHistory: arrayUnion({
-            upiId,
-            amount,
-            status: "Pending",
-            date: new Date().toLocaleString()
-          })
-        });
-        alert("Withdrawal request submitted!");
-        location.reload();
-      } else {
-        alert("Insufficient balance");
+      if ((data.upiHistory || []).some(tx => tx.status === "Pending")) {
+        return alert("You already have a pending withdrawal.");
       }
+
+      if (data.hasPendingTournament) {
+        return alert("You have a pending tournament. Finish it before withdrawing.");
+      }
+
+      if (data.balance < amount) {
+        return alert("Insufficient balance.");
+      }
+
+      await updateDoc(userRef, {
+        balance: data.balance - amount,
+        upiHistory: arrayUnion({
+          upiId,
+          amount,
+          status: "Pending",
+          date: new Date().toLocaleString()
+        })
+      });
+
+      alert("Withdrawal applied! You'll receive it in 24-48 hours.");
+      location.reload();
     }
 
-    async function cashoutRedeem() {
-      const email = document.getElementById("email").value;
-      const amount = parseInt(document.getElementById("redeemAmount").value);
-      if (!email.includes("@")) return alert("Enter a valid email");
-      if (amount < 50 || amount > 5000) return alert("Amount must be between ₹50 and ₹5000");
-
-      const userRef = doc(db, "users", currentUser.uid);
-      const userSnap = await getDoc(userRef);
-      const data = userSnap.data();
-      if ((data.redeemHistory || []).some(r => r.status === "Pending")) return alert("You already have a pending redeem request.");
-
-      if (data.balance >= amount) {
-        await updateDoc(userRef, {
-          balance: data.balance - amount,
-          redeemHistory: arrayUnion({
-            email,
-            amount,
-            code: "Pending",
-            status: "Pending",
-            date: new Date().toLocaleString()
-          })
-        });
-        alert("Redeem request submitted!");
-        location.reload();
-      } else {
-        alert("Insufficient balance");
-      }
-    }
-
-    function loadHistory(data) {
-      const redeemDiv = document.getElementById("redeem-history");
-      const upiDiv = document.getElementById("upi-history");
-      redeemDiv.innerHTML = (data.redeemHistory || []).map(h => `
+    function showHistory(history) {
+      const box = document.getElementById("upi-history");
+      if (!history.length) return box.innerHTML = "<p>No withdrawals yet</p>";
+      box.innerHTML = history.map(h => `
         <div class="history-entry">
-          ₹${h.amount} to ${h.email}<br/>Code: ${h.code || 'Pending'}<br/>${h.date}
-        </div>`).join('') || "<p>No redeem history</p>";
-
-      upiDiv.innerHTML = (data.upiHistory || []).map(h => `
-        <div class="history-entry">
-          ₹${h.amount} to ${h.upiId}<br/>Status: ${h.status || 'Pending'}<br/>${h.date}
-        </div>`).join('') || "<p>No UPI history</p>";
+          ₹${h.amount} to ${h.upiId}<br/>${h.status || "Pending"}<br/>${h.date}
+        </div>
+      `).join('');
     }
   </script>
 </body>
