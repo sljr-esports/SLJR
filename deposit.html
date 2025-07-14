@@ -4,56 +4,71 @@
   <meta charset="UTF-8" />
   <title>Deposit - SLJR</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
   <style>
     body {
-      font-family: 'Arial', sans-serif;
-      background: #ffffff;
       margin: 0;
-      padding: 20px;
-      color: #222;
+      padding-bottom: 100px;
+      font-family: 'Press Start 2P', monospace;
+      background: #ffffff;
+      color: #111;
     }
 
-    h2 {
+    header {
       text-align: center;
-      color: #ff6600;
-      margin-bottom: 10px;
+      padding: 12px 0;
+      border-bottom: 2px solid #ff6600;
+      background-color: white;
     }
 
-    .balance {
+    header h1 {
+      font-size: 1rem;
+      color: #ff6600;
+      margin: 0;
+    }
+
+    .container {
+      padding: 20px;
+    }
+
+    .qr-box {
       text-align: center;
       margin-bottom: 20px;
-      font-size: 1rem;
-      color: #444;
     }
 
-    #qrcode {
-      margin: 20px auto;
-      width: fit-content;
+    .qr-box img {
+      width: 160px;
+      border-radius: 10px;
+      border: 2px solid #ff6600;
     }
 
-    .input-box {
-      text-align: center;
+    .form-group {
+      margin-bottom: 16px;
     }
 
-    input, button {
+    input {
+      width: 100%;
       padding: 10px;
-      font-size: 1rem;
-      margin: 5px;
-      width: 80%;
-      max-width: 300px;
+      font-size: 0.7rem;
+      font-family: monospace;
+      border: 1px solid #ddd;
+      border-radius: 8px;
     }
 
     button {
-      background: #ff6600;
-      color: #fff;
+      width: 100%;
+      padding: 10px;
+      background-color: #ff6600;
+      color: white;
       border: none;
+      border-radius: 8px;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.6rem;
       cursor: pointer;
-      border-radius: 6px;
     }
 
     button:hover {
-      background: #e65c00;
+      background-color: #e05400;
     }
 
     .history {
@@ -61,50 +76,120 @@
     }
 
     .history h3 {
-      text-align: center;
+      font-size: 0.75rem;
+      color: #111;
       margin-bottom: 10px;
-      color: #333;
     }
 
     .history-item {
-      border: 1px solid #ddd;
       padding: 10px;
-      margin: 8px 0;
+      border: 1px solid #ff6600;
       border-radius: 6px;
-      background: #f9f9f9;
+      margin-bottom: 10px;
+      font-size: 0.6rem;
+    }
+
+    .popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      border: 2px solid #ff6600;
+      padding: 20px;
+      font-size: 0.6rem;
+      border-radius: 8px;
+      z-index: 999;
+      box-shadow: 0 0 20px #ff6600;
+      display: none;
+    }
+
+    .popup.show {
+      display: block;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: white;
+      border-top: 1px solid #ddd;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      height: 60px;
+      z-index: 100;
+    }
+
+    .bottom-nav a {
+      text-align: center;
+      font-size: 0.55rem;
+      color: #222;
+      text-decoration: none;
+    }
+
+    .bottom-nav a.active {
+      color: #ff6600;
+    }
+
+    .bottom-nav img {
+      width: 22px;
+      height: 22px;
+      margin-bottom: 2px;
     }
   </style>
 </head>
 <body>
 
-  <h2>Deposit to SLJR</h2>
+  <header>
+    <h1>SLJR E-SPORTS</h1>
+  </header>
 
-  <div class="balance">
-    Balance: ₹<span id="userBalance">0</span>
+  <div class="container">
+    <div class="qr-box">
+      <img src="https://chart.googleapis.com/chart?cht=qr&chs=200x200&chl=upi://pay?pa=8104516653@fam&pn=RAJ%20SHARMA&am=1.0" alt="UPI QR Code" />
+    </div>
+
+    <div class="form-group">
+      <input type="number" id="amount" placeholder="Enter Amount (₹)" min="1" />
+    </div>
+    <div class="form-group">
+      <input type="text" id="utr" placeholder="Enter UTR Number" />
+    </div>
+    <button onclick="submitDeposit()">Submit Deposit</button>
+
+    <div class="popup" id="popup">✅ Deposit request submitted & under review</div>
+
+    <div class="history">
+      <h3>Deposit History</h3>
+      <div id="historyList"></div>
+    </div>
   </div>
 
-  <div id="qrcode"></div>
-
-  <div class="input-box">
-    <input type="number" id="amount" placeholder="Enter deposit amount (₹)" />
-    <button onclick="generateQRCode()">Generate QR</button>
+  <div class="bottom-nav">
+    <a href="home.html">
+      <img src="home.png" alt="Home" />
+      <div>Home</div>
+    </a>
+    <a href="redeem.html">
+      <img src="wallet.png" alt="Wallet" />
+      <div>Wallet</div>
+    </a>
+    <a href="dashboard.html">
+      <img src="profile.png" alt="Dashboard" />
+      <div>Dashboard</div>
+    </a>
+    <a href="match-history.html">
+      <img src="game-history.png" alt="History" />
+      <div>History</div>
+    </a>
   </div>
 
-  <div class="input-box">
-    <input type="text" id="utr" placeholder="Enter UTR number" />
-    <button onclick="submitDeposit()">Submit</button>
-  </div>
-
-  <div class="history">
-    <h3>Deposit History</h3>
-    <div id="historyList"></div>
-  </div>
-
-  <!-- Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getDatabase, ref, set, get, child, push, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import { getDatabase, ref, push, set, onValue, get } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyA0Qhb6FpIGKqWHwo-0pOvvX7bBRh-9FHY",
@@ -121,44 +206,37 @@
 
     let currentUID = null;
 
-    const upiBase = "upi://pay?pa=8104516653@fam&pn=RAJ SHARMA&am=";
-
-    function generateQRCode() {
-      const amount = document.getElementById('amount').value;
-      const qrcodeDiv = document.getElementById("qrcode");
-      qrcodeDiv.innerHTML = "";
-      if (amount && parseFloat(amount) > 0) {
-        new QRCode(qrcodeDiv, {
-          text: upiBase + amount,
-          width: 180,
-          height: 180
-        });
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUID = user.uid;
+        loadHistory();
       } else {
-        alert("Please enter a valid amount.");
+        window.location.href = "index.html";
       }
-    }
+    });
 
     function submitDeposit() {
-      const amount = document.getElementById("amount").value;
-      const utr = document.getElementById("utr").value;
+      const amount = parseFloat(document.getElementById("amount").value);
+      const utr = document.getElementById("utr").value.trim();
 
-      if (!amount || !utr || isNaN(amount) || parseFloat(amount) <= 0) {
-        alert("Please enter valid amount and UTR.");
+      if (!amount || amount < 1 || !utr) {
+        alert("Enter valid amount and UTR");
         return;
       }
 
       const depositRef = push(ref(db, "deposits"));
       set(depositRef, {
         uid: currentUID,
-        amount: parseFloat(amount),
+        amount: amount,
         utr: utr,
-        timestamp: Date.now(),
-        status: "pending"
+        status: "pending",
+        processed: false,
+        timestamp: Date.now()
       }).then(() => {
-        alert("Deposit request submitted.");
         document.getElementById("amount").value = "";
         document.getElementById("utr").value = "";
-        loadHistory();
+        document.getElementById("popup").classList.add("show");
+        setTimeout(() => document.getElementById("popup").classList.remove("show"), 3000);
       });
     }
 
@@ -169,38 +247,31 @@
       onValue(ref(db, "deposits"), (snapshot) => {
         historyDiv.innerHTML = "";
         const data = snapshot.val();
+
         for (let id in data) {
-          if (data[id].uid === currentUID) {
-            const entry = data[id];
+          const entry = data[id];
+          if (entry.uid === currentUID) {
             const div = document.createElement("div");
             div.className = "history-item";
             div.innerHTML = `
-              ₹${entry.amount} - ${entry.utr} <br>
-              Status: ${entry.status}
+              ₹${entry.amount} - UTR: ${entry.utr}<br>Status: ${entry.status}
             `;
             historyDiv.appendChild(div);
+
+            if (entry.status === "approved" && !entry.processed) {
+              set(ref(db, `deposits/${id}/processed`), true);
+
+              const userRef = ref(db, `users/${currentUID}/balance`);
+              get(userRef).then((snap) => {
+                let current = snap.exists() ? parseFloat(snap.val()) : 0;
+                let newBalance = current + parseFloat(entry.amount);
+                set(userRef, newBalance);
+              });
+            }
           }
         }
       });
     }
-
-    function loadBalance() {
-      get(ref(db, `users/${currentUID}/balance`)).then((snap) => {
-        if (snap.exists()) {
-          document.getElementById("userBalance").textContent = snap.val();
-        }
-      });
-    }
-
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        currentUID = user.uid;
-        loadBalance();
-        loadHistory();
-      } else {
-        window.location.href = "index.html";
-      }
-    });
   </script>
 
 </body>
