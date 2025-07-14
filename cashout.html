@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>Cashout - SLJR</title>
@@ -13,38 +12,25 @@
       padding-bottom: 80px;
       color: #222;
     }
-
     header {
       text-align: center;
       padding: 15px 0;
       border-bottom: 2px solid #ff6600;
       background: white;
     }
-
     header h1 {
       font-size: 1rem;
       color: #ff6600;
       margin: 0;
     }
-
     .container {
       padding: 20px;
     }
-
     .balance {
       font-size: 0.8rem;
       color: green;
-      margin-bottom: 15px;
-    }
-
-    .upi-image {
-      width: 100%;
-      height: auto;
       margin-bottom: 20px;
-      border: 2px solid #ff6600;
-      border-radius: 8px;
     }
-
     input[type="text"], input[type="number"] {
       width: 100%;
       padding: 10px;
@@ -54,7 +40,6 @@
       font-family: monospace;
       font-size: 0.75rem;
     }
-
     button {
       width: 100%;
       padding: 10px;
@@ -66,23 +51,6 @@
       cursor: pointer;
       font-size: 0.65rem;
     }
-
-    .history {
-      margin-top: 30px;
-    }
-
-    .history h3 {
-      font-size: 0.8rem;
-      margin-bottom: 10px;
-    }
-
-    .history-entry {
-      border: 1px solid #ccc;
-      padding: 8px;
-      margin-bottom: 10px;
-      font-size: 0.6rem;
-    }
-
     .bottom-nav {
       position: fixed;
       bottom: 0;
@@ -96,51 +64,72 @@
       height: 60px;
       z-index: 100;
     }
-
     .bottom-nav a {
       text-align: center;
       font-size: 0.55rem;
       color: #222;
       text-decoration: none;
     }
-
     .bottom-nav a.active {
       color: #ff6600;
     }
-
     .bottom-nav img {
       width: 22px;
       height: 22px;
       margin-bottom: 2px;
     }
+    .method-select {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .upi-button {
+      border: 2px solid #ff6600;
+      border-radius: 10px;
+      padding: 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.6rem;
+      transition: all 0.3s ease;
+    }
+    .upi-button img {
+      width: 30px;
+      height: 30px;
+    }
+    .upi-button.selected {
+      background-color: #ff6600;
+      color: white;
+    }
   </style>
 </head>
 <body>
-  <header>
-    <h1>SLJR E-SPORTS</h1>
-  </header>
-
+  <header><h1>SLJR E-SPORTS</h1></header>
   <div class="container">
-    <div class="balance">Balance: ₹<span id="balance">0</span></div>
+    <div class="balance">Balance: ₹<span id="balance">0</span></div><div class="method-select">
+  <label for="upi-option" class="upi-button selected" id="upi-label">
+    <input type="radio" name="method" id="upi-option" value="upi" hidden checked />
+    <img src="upi.jpg" alt="UPI" />
+    <span>UPI</span>
+  </label>
+</div>
 
-    <img src="upi.jpg" alt="UPI Payment" class="upi-image" />
+<input type="text" id="upiId" placeholder="Enter UPI ID" />
+<input type="number" id="upiAmount" placeholder="Enter Amount" />
+<button onclick="cashoutUPI()">Submit Withdrawal</button>
 
-    <input type="text" id="upiId" placeholder="Enter your UPI ID" />
-    <input type="number" id="amount" placeholder="Enter amount (₹50 - ₹5000)" />
-    <button onclick="submitWithdrawal()">Submit Withdrawal</button>
+<div class="history">
+  <h3>UPI Withdrawal History</h3>
+  <div id="upi-history"></div>
+</div>
 
-    <div class="history">
-      <h3>UPI Withdrawal History</h3>
-      <div id="upi-history"></div>
-    </div>
-  </div>
-
-  <div class="bottom-nav">
+  </div>  <div class="bottom-nav">
     <a href="home.html">
       <img src="home.png" alt="Home" />
       <div>Home</div>
     </a>
-    <a href="redeem.html">
+    <a href="redeem.html" class="active">
       <img src="wallet.png" alt="Wallet" />
       <div>Wallet</div>
     </a>
@@ -152,10 +141,7 @@
       <img src="game-history.png" alt="History" />
       <div>History</div>
     </a>
-  </div>
-
-  <!-- Firebase -->
-  <script type="module">
+  </div>  <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
     import { getFirestore, doc, getDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -164,7 +150,7 @@
       apiKey: "AIzaSyA0Qhb6FpIGKqWHwo-0pOvvX7bBRh-9FHY",
       authDomain: "sljr-e-sports.firebaseapp.com",
       projectId: "sljr-e-sports",
-      storageBucket: "sljr-e-sports.appspot.com",
+      storageBucket: "sljr-e-sports.firebasestorage.app",
       messagingSenderId: "568709951241",
       appId: "1:568709951241:web:75498cdedbc058c06e2dd8"
     };
@@ -172,64 +158,61 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-
     let currentUser;
 
     onAuthStateChanged(auth, async (user) => {
-      if (!user) return window.location.href = "index.html";
-      currentUser = user;
-      const ref = doc(db, "users", user.uid);
-      const snap = await getDoc(ref);
-      const data = snap.data();
-      document.getElementById("balance").textContent = data.balance || 0;
-      showHistory(data.upiHistory || []);
+      if (user) {
+        currentUser = user;
+        const userRef = doc(db, "users", user.uid);
+        const snap = await getDoc(userRef);
+        if (snap.exists()) {
+          const data = snap.data();
+          document.getElementById("balance").textContent = data.balance || 0;
+          loadHistory();
+        }
+      } else {
+        window.location.href = "index.html";
+      }
     });
 
-    async function submitWithdrawal() {
+    async function cashoutUPI() {
       const upiId = document.getElementById("upiId").value.trim();
-      const amount = parseInt(document.getElementById("amount").value);
-      if (!upiId.includes("@")) return alert("Enter a valid UPI ID.");
-      if (amount < 50 || amount > 5000) return alert("Amount must be between ₹50 and ₹5000");
+      const amount = parseInt(document.getElementById("upiAmount").value);
+      if (!upiId.includes("@")) return alert("Enter valid UPI ID with @");
+      if (amount < 50 || amount > 5000) return alert("Min: 50, Max: 5000");
 
       const userRef = doc(db, "users", currentUser.uid);
       const snap = await getDoc(userRef);
       const data = snap.data();
 
-      if ((data.upiHistory || []).some(tx => tx.status === "Pending")) {
-        return alert("You already have a pending withdrawal.");
-      }
-
-      if (data.hasPendingTournament) {
-        return alert("You have a pending tournament. Finish it before withdrawing.");
-      }
-
-      if (data.balance < amount) {
-        return alert("Insufficient balance.");
+      if ((data.upiPending && data.upiPending === true) || data.balance < amount) {
+        alert("Either insufficient balance or previous withdrawal pending.");
+        return;
       }
 
       await updateDoc(userRef, {
         balance: data.balance - amount,
-        upiHistory: arrayUnion({
-          upiId,
-          amount,
-          status: "Pending",
-          date: new Date().toLocaleString()
-        })
+        upiHistory: arrayUnion({ upiId, amount, date: new Date().toLocaleString(), status: "Pending" }),
+        upiPending: true
       });
-
-      alert("Withdrawal applied! You'll receive it in 24-48 hours.");
+      alert("Withdrawal received. You'll get it in 24-48 hours.");
       location.reload();
     }
 
-    function showHistory(history) {
-      const box = document.getElementById("upi-history");
-      if (!history.length) return box.innerHTML = "<p>No withdrawals yet</p>";
-      box.innerHTML = history.map(h => `
-        <div class="history-entry">
-          ₹${h.amount} to ${h.upiId}<br/>${h.status || "Pending"}<br/>${h.date}
-        </div>
-      `).join('');
+    async function loadHistory() {
+      const userRef = doc(db, "users", currentUser.uid);
+      const snap = await getDoc(userRef);
+      const data = snap.data();
+      const history = data.upiHistory || [];
+      const div = document.getElementById("upi-history");
+      div.innerHTML = history.length
+        ? history.map(h => `<div class="history-entry">₹${h.amount} to ${h.upiId}<br/>Status: ${h.status || 'Pending'}<br/>${h.date}</div>`).join('')
+        : "<p>No history</p>";
     }
-  </script>
-</body>
+
+    // Toggle style on UPI button
+    document.getElementById("upi-label").addEventListener("click", () => {
+      document.getElementById("upi-label").classList.add("selected");
+    });
+  </script></body>
 </html>
