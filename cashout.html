@@ -9,7 +9,7 @@
     body {
       font-family: 'Press Start 2P', monospace;
       margin: 0;
-      background: #ffffff;
+      background: #fff;
       padding-bottom: 80px;
       color: #222;
     }
@@ -34,7 +34,7 @@
     .balance {
       font-size: 0.8rem;
       color: green;
-      margin-bottom: 20px;
+      margin-bottom: 15px;
     }
 
     input[type="text"], input[type="number"] {
@@ -43,8 +43,8 @@
       margin-bottom: 15px;
       border: 2px solid #ff6600;
       border-radius: 5px;
+      font-size: 0.7rem;
       font-family: monospace;
-      font-size: 0.75rem;
     }
 
     button {
@@ -52,24 +52,10 @@
       padding: 12px;
       background-color: #ff6600;
       color: white;
-      font-family: 'Press Start 2P', monospace;
       border: none;
       border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.65rem;
-    }
-
-    .payment-img {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 15px;
-    }
-
-    .payment-img img {
-      width: 120px;
-      height: auto;
-      border-radius: 8px;
-      border: 2px solid #ff6600;
+      font-family: 'Press Start 2P', monospace;
+      font-size: 0.6rem;
       cursor: pointer;
     }
 
@@ -103,45 +89,50 @@
       height: 22px;
       margin-bottom: 2px;
     }
+
+    .upi-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      margin-bottom: 10px;
+      border: 2px solid #ff6600;
+      padding: 6px 12px;
+      border-radius: 6px;
+      width: fit-content;
+      margin: 0 auto 20px;
+    }
+
+    .upi-label img {
+      width: 20px;
+      height: 20px;
+      margin-right: 8px;
+    }
   </style>
 </head>
 <body>
-  <header>
-    <h1>SLJR E-SPORTS</h1>
-  </header>
+  <header><h1>SLJR E-SPORTS</h1></header>
 
   <div class="container">
     <div class="balance">Balance: ₹<span id="balance">0</span></div>
 
-    <div class="payment-img">
-      <img src="upi.jpg" alt="UPI Payment" />
+    <div class="upi-label">
+      <img src="upi.jpg" alt="UPI">
+      UPI Payment
     </div>
 
     <input type="text" id="upiId" placeholder="Enter UPI ID" />
     <input type="number" id="amount" placeholder="Enter Amount (Min ₹50, Max ₹5000)" />
-    <button onclick="submitWithdrawal()">Submit Withdrawal</button>
+    <button onclick="submitWithdraw()">Submit Withdrawal</button>
   </div>
 
   <div class="bottom-nav">
-    <a href="home.html">
-      <img src="home.png" alt="Home" />
-      <div>Home</div>
-    </a>
-    <a href="redeem.html" class="active">
-      <img src="wallet.png" alt="Wallet" />
-      <div>Wallet</div>
-    </a>
-    <a href="dashboard.html">
-      <img src="profile.png" alt="Dashboard" />
-      <div>Dashboard</div>
-    </a>
-    <a href="match-history.html">
-      <img src="game-history.png" alt="History" />
-      <div>History</div>
-    </a>
+    <a href="home.html"><img src="home.png" /><div>Home</div></a>
+    <a href="redeem.html" class="active"><img src="wallet.png" /><div>Wallet</div></a>
+    <a href="dashboard.html"><img src="profile.png" /><div>Dashboard</div></a>
+    <a href="match-history.html"><img src="game-history.png" /><div>History</div></a>
   </div>
 
-  <!-- Firebase + Logic -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -151,7 +142,7 @@
       apiKey: "AIzaSyA0Qhb6FpIGKqWHwo-0pOvvX7bBRh-9FHY",
       authDomain: "sljr-e-sports.firebaseapp.com",
       projectId: "sljr-e-sports",
-      storageBucket: "sljr-e-sports.firebasestorage.app",
+      storageBucket: "sljr-e-sports.appspot.com",
       messagingSenderId: "568709951241",
       appId: "1:568709951241:web:75498cdedbc058c06e2dd8"
     };
@@ -159,53 +150,50 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
+
     let currentUser;
+    let userData;
 
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
-        alert("Please login first.");
         window.location.href = "index.html";
-        return;
-      }
-      currentUser = user;
-      const userRef = doc(db, "users", user.uid);
-      const snap = await getDoc(userRef);
-      if (snap.exists()) {
-        const data = snap.data();
-        document.getElementById("balance").textContent = data.balance || 0;
+      } else {
+        currentUser = user;
+        const docRef = doc(db, "users", user.uid);
+        const snap = await getDoc(docRef);
+        if (snap.exists()) {
+          userData = snap.data();
+          document.getElementById("balance").textContent = userData.balance || 0;
+        }
       }
     });
 
-    async function submitWithdrawal() {
+    async function submitWithdraw() {
       const upiId = document.getElementById("upiId").value.trim();
       const amount = parseInt(document.getElementById("amount").value);
-      if (!upiId || !upiId.includes("@")) return alert("Enter valid UPI ID with @");
-      if (amount < 50 || amount > 5000) return alert("Enter amount between ₹50 - ₹5000");
+      if (!upiId.includes("@")) return alert("Enter valid UPI ID with '@'");
+      if (isNaN(amount) || amount < 50 || amount > 5000) return alert("Amount must be ₹50–₹5000");
 
       const userRef = doc(db, "users", currentUser.uid);
       const snap = await getDoc(userRef);
       const data = snap.data();
-      if ((data.withdrawals || []).some(w => w.status === "pending")) {
-        return alert("You already have a pending withdrawal.");
-      }
-      if ((data.balance || 0) < amount) {
-        return alert("Insufficient balance.");
-      }
 
-      const withdrawal = {
-        upiId,
-        amount,
-        date: new Date().toLocaleString(),
-        status: "pending"
-      };
+      if (data.pendingWithdrawal) return alert("One withdrawal already pending.");
+      if (data.balance < amount) return alert("Insufficient balance.");
 
       await updateDoc(userRef, {
         balance: data.balance - amount,
-        withdrawals: arrayUnion(withdrawal)
+        pendingWithdrawal: true,
+        withdrawHistory: arrayUnion({
+          upiId,
+          amount,
+          status: "Pending",
+          date: new Date().toLocaleString()
+        })
       });
 
-      alert("Withdrawal applied! Amount will be processed within 24-48 hours.");
-      location.reload();
+      alert("Withdrawal submitted! You will receive it in 24–48 hours.");
+      window.location.reload();
     }
   </script>
 </body>
