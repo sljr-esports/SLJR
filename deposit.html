@@ -137,7 +137,7 @@
       document.getElementById("qrImage").src = qrUrl;
     }
 
-    setInterval(generateQR, 2000);
+    setInterval(generateQR, 60000);
     document.getElementById("depositAmount").addEventListener("input", generateQR);
     generateQR();
 
