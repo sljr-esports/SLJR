@@ -1,7 +1,8 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Cashout - SLJR</title>
+  <title>Deposit - SLJR</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
   <style>
@@ -25,44 +26,28 @@
     }
     .container {
       padding: 20px;
+      text-align: center;
     }
-    .balance {
-      font-size: 0.8rem;
-      color: green;
-      margin-bottom: 20px;
+    .qr {
+      margin: 20px auto;
+      border: 2px dashed #ff6600;
+      padding: 15px;
+      display: inline-block;
     }
-    select, input[type="text"], input[type="number"] {
+    input, button {
+      display: block;
       width: 100%;
+      margin: 10px 0;
       padding: 10px;
-      margin-bottom: 15px;
-      border: 2px solid #ff6600;
-      border-radius: 5px;
+      font-size: 0.65rem;
       font-family: monospace;
-      font-size: 0.75rem;
+      border-radius: 5px;
+      border: 2px solid #ff6600;
     }
     button {
-      width: 100%;
-      padding: 10px;
       background-color: #ff6600;
       color: white;
-      font-family: 'Press Start 2P', monospace;
-      border: none;
-      border-radius: 6px;
       cursor: pointer;
-      font-size: 0.65rem;
-    }
-    .history {
-      margin-top: 30px;
-    }
-    .history h3 {
-      font-size: 0.8rem;
-      margin-bottom: 10px;
-    }
-    .history-entry {
-      border: 1px solid #ccc;
-      padding: 8px;
-      margin-bottom: 10px;
-      font-size: 0.6rem;
     }
     .bottom-nav {
       position: fixed;
@@ -94,142 +79,106 @@
   </style>
 </head>
 <body>
-  <header>
-    <h1>SLJR E-SPORTS</h1>
-  </header>  <div class="container">
-    <div class="balance">Balance: ₹<span id="balance">0</span></div><select id="method">
-  <option value="upi">UPI</option>
-  <option value="redeem">Redeem Code</option>
-</select>
 
-<div id="upi-section">
-  <input type="text" id="upiId" placeholder="Enter UPI ID" />
-  <input type="number" id="upiAmount" placeholder="Enter Amount" />
-  <button onclick="cashoutUPI()">Withdraw via UPI</button>
+<header>
+  <h1>SLJR E-SPORTS</h1>
+</header>
+
+<div class="container">
+  <div class="qr">
+    <canvas id="qrCanvas"></canvas>
+    <div style="font-size: 0.5rem;" id="txnid"></div>
+  </div>
+
+  <input type="number" id="amount" placeholder="Enter Amount (₹)" min="1" />
+  <input type="text" id="utr" placeholder="Enter UTR Number" />
+  <button onclick="submitDeposit()">Submit Deposit</button>
 </div>
 
-<div id="redeem-section" style="display:none;">
-  <input type="text" id="email" placeholder="Enter Email" />
-  <input type="number" id="redeemAmount" placeholder="Enter Amount" />
-  <button onclick="cashoutRedeem()">Withdraw via Redeem</button>
+<div class="bottom-nav">
+  <a href="home.html">
+    <img src="home.png" alt="Home" />
+    <div>Home</div>
+  </a>
+  <a href="redeem.html" class="active">
+    <img src="wallet.png" alt="Wallet" />
+    <div>Wallet</div>
+  </a>
+  <a href="dashboard.html">
+    <img src="profile.png" alt="Dashboard" />
+    <div>Dashboard</div>
+  </a>
+  <a href="match-history.html">
+    <img src="game-history.png" alt="History" />
+    <div>History</div>
+  </a>
 </div>
 
-<div class="history">
-  <h3>Redeem History</h3>
-  <div id="redeem-history"></div>
-  <h3>UPI History</h3>
-  <div id="upi-history"></div>
-</div>
+<!-- QR + Firebase Script -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, doc, updateDoc, arrayUnion, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  </div>  <div class="bottom-nav">
-    <a href="home.html">
-      <img src="home.png" alt="Home" />
-      <div>Home</div>
-    </a>
-    <a href="redeem.html" class="active">
-      <img src="wallet.png" alt="Wallet" />
-      <div>Wallet</div>
-    </a>
-    <a href="dashboard.html">
-      <img src="profile.png" alt="Dashboard" />
-      <div>Dashboard</div>
-    </a>
-    <a href="match-history.html">
-      <img src="game-history.png" alt="History" />
-      <div>History</div>
-    </a>
-  </div>  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, updateDoc, onSnapshot, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import QRCode from "https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/es/index.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyA0Qhb6FpIGKqWHwo-0pOvvX7bBRh-9FHY",
-      authDomain: "sljr-e-sports.firebaseapp.com",
-      projectId: "sljr-e-sports",
-      storageBucket: "sljr-e-sports.firebasestorage.app",
-      messagingSenderId: "568709951241",
-      appId: "1:568709951241:web:75498cdedbc058c06e2dd8"
-    };
+  const firebaseConfig = {
+    apiKey: "AIzaSyA0Qhb6FpIGKqWHwo-0pOvvX7bBRh-9FHY",
+    authDomain: "sljr-e-sports.firebaseapp.com",
+    projectId: "sljr-e-sports",
+    storageBucket: "sljr-e-sports.firebasestorage.app",
+    messagingSenderId: "568709951241",
+    appId: "1:568709951241:web:75498cdedbc058c06e2dd8"
+  };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
 
-    let currentUser;
+  let currentUser;
+  let currentTxnId = '';
 
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        currentUser = user;
-        const userRef = doc(db, "users", user.uid);
-        const snap = await getDoc(userRef);
-        if (snap.exists()) {
-          const data = snap.data();
-          document.getElementById("balance").textContent = data.balance || 0;
-          loadHistory(user.uid);
-        }
-      } else {
-        window.location.href = "index.html";
-      }
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      currentUser = user;
+      generateQR();
+      setInterval(generateQR, 60000); // Refresh QR every 1 minute
+    } else {
+      window.location.href = "index.html";
+    }
+  });
+
+  function generateQR() {
+    const amount = document.getElementById("amount").value || 1;
+    currentTxnId = 'TXN' + Math.floor(10000000 + Math.random() * 90000000);
+    const upiUrl = `upi://pay?pa=8104516653@fam&pn=RAJ SHARMA&am=${amount}&tid=${currentTxnId}`;
+    QRCode.toCanvas(document.getElementById("qrCanvas"), upiUrl);
+    document.getElementById("txnid").textContent = `Txn ID: ${currentTxnId}`;
+  }
+
+  async function submitDeposit() {
+    const amount = parseInt(document.getElementById("amount").value);
+    const utr = document.getElementById("utr").value;
+    if (!amount || !utr) return alert("Please enter valid amount and UTR");
+
+    const userRef = doc(db, "users", currentUser.uid);
+    const snap = await getDoc(userRef);
+    if (!snap.exists()) return alert("User not found!");
+
+    await updateDoc(userRef, {
+      deposits: arrayUnion({
+        amount,
+        utr,
+        status: "Pending",
+        txnid: currentTxnId,
+        date: new Date().toLocaleString()
+      })
     });
 
-    document.getElementById("method").addEventListener("change", (e) => {
-      document.getElementById("upi-section").style.display = e.target.value === 'upi' ? 'block' : 'none';
-      document.getElementById("redeem-section").style.display = e.target.value === 'redeem' ? 'block' : 'none';
-    });
+    alert("Deposit submitted and is under review.");
+    location.reload();
+  }
+</script>
 
-    async function cashoutUPI() {
-      const upiId = document.getElementById("upiId").value;
-      const amount = parseInt(document.getElementById("upiAmount").value);
-      if (!upiId || !amount || amount <= 0) return alert("Enter valid UPI ID and amount");
-      const userRef = doc(db, "users", currentUser.uid);
-      const snap = await getDoc(userRef);
-      const data = snap.data();
-      if (data.balance >= amount) {
-        await updateDoc(userRef, {
-          balance: data.balance - amount,
-          upiHistory: arrayUnion({ upiId, amount, date: new Date().toLocaleString() })
-        });
-        alert("Withdrawal via UPI applied!");
-        location.reload();
-      } else {
-        alert("Insufficient balance");
-      }
-    }
-
-    async function cashoutRedeem() {
-      const email = document.getElementById("email").value;
-      const amount = parseInt(document.getElementById("redeemAmount").value);
-      if (!email || !amount || amount <= 0) return alert("Enter valid email and amount");
-      const userRef = doc(db, "users", currentUser.uid);
-      const snap = await getDoc(userRef);
-      const data = snap.data();
-      if (data.balance >= amount) {
-        await updateDoc(userRef, {
-          balance: data.balance - amount,
-          redeemHistory: arrayUnion({ email, amount, date: new Date().toLocaleString(), code: "Pending" })
-        });
-        alert("Redeem request submitted!");
-        location.reload();
-      } else {
-        alert("Insufficient balance");
-      }
-    }
-
-    async function loadHistory(uid) {
-      const userRef = doc(db, "users", uid);
-      const snap = await getDoc(userRef);
-      const data = snap.data();
-      const redeemDiv = document.getElementById("redeem-history");
-      const upiDiv = document.getElementById("upi-history");
-      redeemDiv.innerHTML = (data.redeemHistory || []).map(h => `
-        <div class="history-entry">
-          ₹${h.amount} to ${h.email}<br/>Code: ${h.code || 'Pending'}<br/>${h.date}
-        </div>`).join('') || "<p>No redeem history</p>";
-      upiDiv.innerHTML = (data.upiHistory || []).map(h => `
-        <div class="history-entry">
-          ₹${h.amount} to ${h.upiId}<br/>${h.date}
-        </div>`).join('') || "<p>No UPI history</p>";
-    }
-  </script></body>
+</body>
 </html>
