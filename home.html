@@ -35,12 +35,13 @@
     }
 
     .game-box {
-      border: 2px solid #ff6600;
+      border: 2px solid #000; /* Black border added */
       border-radius: 10px;
       padding: 10px;
       text-align: center;
       transition: 0.3s ease;
       cursor: pointer;
+      background: #fff;
     }
 
     .game-box:hover {
@@ -101,7 +102,7 @@
   </header>
 
   <div class="games">
-    <div class="game-box" onclick="window.location.href='freefire.html?game=freefire'">
+    <div class="game-box" onclick="window.location.href='freefire.html'">
       <img src="Freefire.jpg" alt="Free Fire Max" />
       <span>Free Fire Max</span>
     </div>
@@ -132,20 +133,8 @@
 
   <!-- Firebase Auth Check -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyA0Qhb6FpIGKqWHwo-0pOvvX7bBRh-9FHY",
-      authDomain: "sljr-e-sports.firebaseapp.com",
-      projectId: "sljr-e-sports",
-      storageBucket: "sljr-e-sports.firebasestorage.app",
-      messagingSenderId: "568709951241",
-      appId: "1:568709951241:web:75498cdedbc058c06e2dd8"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+    import { auth } from "./firebase.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
     onAuthStateChanged(auth, (user) => {
       if (!user) {
