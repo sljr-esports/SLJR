@@ -10,37 +10,43 @@
       font-family: 'Press Start 2P', monospace;
       margin: 0;
       background: #ffffff;
-      color: #222;
       padding-bottom: 80px;
+      color: #222;
     }
+
     header {
       text-align: center;
       padding: 15px 0;
       border-bottom: 2px solid #ff6600;
       background: white;
     }
+
     header h1 {
       font-size: 1rem;
       color: #ff6600;
       margin: 0;
     }
+
     .container {
       padding: 20px;
     }
+
     .balance {
       font-size: 0.8rem;
       color: green;
       margin-bottom: 20px;
     }
+
     input[type="text"], input[type="number"] {
       width: 100%;
       padding: 10px;
       margin-bottom: 15px;
       border: 2px solid #ff6600;
-      border-radius: 6px;
+      border-radius: 5px;
       font-family: monospace;
       font-size: 0.75rem;
     }
+
     button {
       width: 100%;
       padding: 10px;
@@ -50,16 +56,27 @@
       border: none;
       border-radius: 6px;
       cursor: pointer;
+      font-size: 0.65rem;
+      margin-bottom: 15px;
+      box-shadow: 3px 3px 0 #000;
+    }
+
+    .history {
+      margin-top: 30px;
+    }
+
+    .history h3 {
+      font-size: 0.8rem;
+      margin-bottom: 10px;
+    }
+
+    .history-entry {
+      border: 1px solid #ccc;
+      padding: 8px;
+      margin-bottom: 10px;
       font-size: 0.6rem;
     }
-    button:hover {
-      background-color: #e65500;
-    }
-    .upi-image {
-      width: 100px;
-      display: block;
-      margin: 10px auto 20px;
-    }
+
     .bottom-nav {
       position: fixed;
       bottom: 0;
@@ -73,15 +90,18 @@
       height: 60px;
       z-index: 100;
     }
+
     .bottom-nav a {
       text-align: center;
       font-size: 0.55rem;
       color: #222;
       text-decoration: none;
     }
+
     .bottom-nav a.active {
       color: #ff6600;
     }
+
     .bottom-nav img {
       width: 22px;
       height: 22px;
@@ -95,13 +115,15 @@
   </header>
 
   <div class="container">
-    <div class="balance">Wallet Balance: ₹<span id="balance">0</span></div>
+    <div class="balance">Balance: ₹<span id="balance">0</span></div>
+    <input type="text" id="upiId" placeholder="Enter UPI ID" />
+    <input type="number" id="amount" placeholder="Enter Amount (₹50–₹5000)" />
+    <button onclick="submitCashout()">Withdraw Now</button>
 
-    <img src="upi.jpg" alt="UPI" class="upi-image" />
-
-    <input type="text" id="upiId" placeholder="Enter your UPI ID" />
-    <input type="number" id="amount" placeholder="Enter amount (50 - 5000)" />
-    <button onclick="submitWithdrawal()">Submit Withdrawal</button>
+    <div class="history">
+      <h3>Cashout History</h3>
+      <div id="cashout-history"></div>
+    </div>
   </div>
 
   <div class="bottom-nav">
@@ -109,7 +131,7 @@
       <img src="home.png" alt="Home" />
       <div>Home</div>
     </a>
-    <a href="redeem.html" class="active">
+    <a href="redeem.html">
       <img src="wallet.png" alt="Wallet" />
       <div>Wallet</div>
     </a>
@@ -123,7 +145,7 @@
     </a>
   </div>
 
-  <!-- Firebase Script -->
+  <!-- Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -142,70 +164,64 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    let currentUser;
-    let balance = 0;
+    let currentUser, currentBalance = 0;
 
     onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        currentUser = user;
-        const userRef = doc(db, "users", user.uid);
-        const docSnap = await getDoc(userRef);
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          balance = data.balance || 0;
-          document.getElementById("balance").textContent = balance;
-
-          if (data.withdrawalPending) {
-            alert("One withdrawal is already under review.");
-            document.querySelector("button").disabled = true;
-          }
-        }
-      } else {
-        window.location.href = "index.html";
+      if (!user) return window.location.href = "index.html";
+      currentUser = user;
+      const docRef = doc(db, "users", user.uid);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        currentBalance = data.balance || 0;
+        document.getElementById("balance").textContent = currentBalance;
+        loadCashoutHistory(data.cashouts || []);
       }
     });
 
-    async function submitWithdrawal() {
+    async function submitCashout() {
       const upiId = document.getElementById("upiId").value.trim();
       const amount = parseInt(document.getElementById("amount").value);
 
-      if (!upiId || !upiId.includes("@")) {
-        alert("Enter a valid UPI ID");
-        return;
-      }
-
-      if (!amount || amount < 50 || amount > 5000) {
-        alert("Amount must be between ₹50 and ₹5000");
-        return;
-      }
-
-      if (amount > balance) {
-        alert("Insufficient balance");
-        return;
-      }
+      if (!upiId.includes("@")) return alert("Enter valid UPI ID");
+      if (amount < 50 || amount > 5000) return alert("Amount must be between ₹50 and ₹5000");
 
       const userRef = doc(db, "users", currentUser.uid);
-      const docSnap = await getDoc(userRef);
-      const data = docSnap.data();
+      const userSnap = await getDoc(userRef);
+      const data = userSnap.data();
 
-      if (data.withdrawalPending) {
-        alert("Please wait for your current withdrawal to be completed.");
-        return;
+      if (data.cashouts && data.cashouts.some(c => c.status === "Pending")) {
+        return alert("You already have a pending withdrawal.");
+      }
+
+      if (data.balance < amount) {
+        return alert("Insufficient balance.");
       }
 
       await updateDoc(userRef, {
-        balance: balance - amount,
-        withdrawalPending: true,
-        withdrawHistory: arrayUnion({
-          upiId,
-          amount,
-          status: "Under Review",
-          date: new Date().toLocaleString()
+        balance: data.balance - amount,
+        cashouts: arrayUnion({
+          upi: upiId,
+          amount: amount,
+          date: new Date().toLocaleString(),
+          status: "Pending"
         })
       });
 
-      alert("✅ Withdrawal received! You’ll be paid within 24–48 hours.");
-      window.location.reload();
+      alert("Withdrawal request submitted!\nYou will receive in 24–48 hours.");
+      location.reload();
+    }
+
+    function loadCashoutHistory(list) {
+      const div = document.getElementById("cashout-history");
+      if (!list.length) return div.innerHTML = "<p>No cashout history.</p>";
+      div.innerHTML = list.reverse().map(item => `
+        <div class="history-entry">
+          ₹${item.amount} to ${item.upi}<br/>
+          Status: ${item.status}<br/>
+          ${item.date}
+        </div>
+      `).join('');
     }
   </script>
 </body>
