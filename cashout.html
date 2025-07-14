@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Withdraw - SLJR</title>
+  <title>Cashout - SLJR</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
   <style>
@@ -10,7 +10,7 @@
       font-family: 'Press Start 2P', monospace;
       margin: 0;
       background: #ffffff;
-      padding-bottom: 100px;
+      padding-bottom: 80px;
       color: #222;
     }
     header {
@@ -28,35 +28,69 @@
       padding: 20px;
     }
     .balance {
-      font-size: 0.75rem;
-      margin-bottom: 20px;
+      font-size: 0.8rem;
       color: green;
+      margin-bottom: 20px;
     }
-    input, select, button {
+    select, input[type="text"], input[type="number"] {
       width: 100%;
       padding: 10px;
-      font-size: 0.7rem;
-      font-family: monospace;
       margin-bottom: 15px;
       border: 2px solid #ff6600;
-      border-radius: 6px;
+      border-radius: 5px;
+      font-family: monospace;
+      font-size: 0.75rem;
     }
     button {
-      background: #ff6600;
-      color: #fff;
+      width: 100%;
+      padding: 10px;
+      background-color: #ff6600;
+      color: white;
+      font-family: 'Press Start 2P', monospace;
+      border: none;
+      border-radius: 6px;
       cursor: pointer;
-    }
-    button:hover {
-      background: #e05200;
+      font-size: 0.65rem;
     }
     .history {
       margin-top: 30px;
     }
+    .history h3 {
+      font-size: 0.8rem;
+      margin-bottom: 10px;
+    }
     .history-entry {
-      font-size: 0.6rem;
       border: 1px solid #ccc;
       padding: 8px;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
+      font-size: 0.6rem;
+    }
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: white;
+      border-top: 1px solid #ddd;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      height: 60px;
+      z-index: 100;
+    }
+    .bottom-nav a {
+      text-align: center;
+      font-size: 0.55rem;
+      color: #222;
+      text-decoration: none;
+    }
+    .bottom-nav a.active {
+      color: #ff6600;
+    }
+    .bottom-nav img {
+      width: 22px;
+      height: 22px;
+      margin-bottom: 2px;
     }
   </style>
 </head>
@@ -64,34 +98,53 @@
   <header>
     <h1>SLJR E-SPORTS</h1>
   </header>
-
   <div class="container">
-    <div class="balance">Wallet Balance: ₹<span id="balance">0</span></div>
+    <div class="balance">Balance: ₹<span id="balance">0</span></div>
 
     <select id="method">
-      <option value="upi">Withdraw to UPI</option>
+      <option value="upi">UPI</option>
       <option value="redeem">Redeem Code</option>
     </select>
 
-    <div id="upi-box">
+    <div id="upi-section">
       <input type="text" id="upiId" placeholder="Enter UPI ID" />
-      <input type="number" id="upiAmount" placeholder="Enter Amount (₹50-5000)" />
+      <input type="number" id="upiAmount" placeholder="Enter Amount" />
       <button onclick="cashoutUPI()">Withdraw via UPI</button>
     </div>
 
-    <div id="redeem-box" style="display: none;">
+    <div id="redeem-section" style="display:none;">
       <input type="text" id="email" placeholder="Enter Email" />
-      <input type="number" id="redeemAmount" placeholder="Enter Amount (₹50-5000)" />
+      <input type="number" id="redeemAmount" placeholder="Enter Amount" />
       <button onclick="cashoutRedeem()">Withdraw via Redeem</button>
     </div>
 
     <div class="history">
-      <h3 style="font-size:0.7rem;">Withdrawal History</h3>
-      <div id="history"></div>
+      <h3>Redeem History</h3>
+      <div id="redeem-history"></div>
+      <h3>UPI History</h3>
+      <div id="upi-history"></div>
     </div>
   </div>
 
-  <!-- Firebase + Script -->
+  <div class="bottom-nav">
+    <a href="home.html">
+      <img src="home.png" alt="Home" />
+      <div>Home</div>
+    </a>
+    <a href="redeem.html" class="active">
+      <img src="wallet.png" alt="Wallet" />
+      <div>Wallet</div>
+    </a>
+    <a href="dashboard.html">
+      <img src="profile.png" alt="Dashboard" />
+      <div>Dashboard</div>
+    </a>
+    <a href="match-history.html">
+      <img src="game-history.png" alt="History" />
+      <div>History</div>
+    </a>
+  </div>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -109,94 +162,92 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
-    let userData;
-
-    const method = document.getElementById("method");
-    const upiBox = document.getElementById("upi-box");
-    const redeemBox = document.getElementById("redeem-box");
-    const balanceText = document.getElementById("balance");
-    const historyDiv = document.getElementById("history");
-
-    method.addEventListener("change", () => {
-      upiBox.style.display = method.value === "upi" ? "block" : "none";
-      redeemBox.style.display = method.value === "redeem" ? "block" : "none";
-    });
+    let currentUser;
 
     onAuthStateChanged(auth, async (user) => {
-      if (!user) return window.location.href = "index.html";
-      const ref = doc(db, "users", user.uid);
-      const snap = await getDoc(ref);
-      if (snap.exists()) {
-        userData = snap.data();
-        balanceText.textContent = userData.balance || 0;
-        renderHistory(userData);
-      }
+      if (!user) return (window.location.href = "index.html");
+      currentUser = user;
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef);
+      const data = userSnap.data();
+      document.getElementById("balance").textContent = data.balance || 0;
+      loadHistory(data);
     });
 
-    function hasPending(history) {
-      return (history || []).some(item => item.status === "Pending");
-    }
+    document.getElementById("method").addEventListener("change", (e) => {
+      document.getElementById("upi-section").style.display = e.target.value === 'upi' ? 'block' : 'none';
+      document.getElementById("redeem-section").style.display = e.target.value === 'redeem' ? 'block' : 'none';
+    });
 
     async function cashoutUPI() {
-      const upiId = document.getElementById("upiId").value.trim();
+      const upiId = document.getElementById("upiId").value;
       const amount = parseInt(document.getElementById("upiAmount").value);
-      if (!upiId.includes("@") || isNaN(amount) || amount < 50 || amount > 5000) {
-        return alert("Enter valid UPI ID and amount (₹50–₹5000)");
+      if (!upiId.includes("@")) return alert("UPI ID must contain '@'");
+      if (amount < 50 || amount > 5000) return alert("Amount must be between ₹50 and ₹5000");
+
+      const userRef = doc(db, "users", currentUser.uid);
+      const userSnap = await getDoc(userRef);
+      const data = userSnap.data();
+      if ((data.upiHistory || []).some(r => r.status === "Pending")) return alert("You already have a pending UPI withdrawal.");
+
+      if (data.balance >= amount) {
+        await updateDoc(userRef, {
+          balance: data.balance - amount,
+          upiHistory: arrayUnion({
+            upiId,
+            amount,
+            status: "Pending",
+            date: new Date().toLocaleString()
+          })
+        });
+        alert("Withdrawal request submitted!");
+        location.reload();
+      } else {
+        alert("Insufficient balance");
       }
-
-      if (hasPending(userData.upiHistory)) {
-        return alert("You already have a pending UPI withdrawal.");
-      }
-
-      if (userData.balance < amount) {
-        return alert("Insufficient balance.");
-      }
-
-      const userRef = doc(db, "users", auth.currentUser.uid);
-      await updateDoc(userRef, {
-        balance: userData.balance - amount,
-        upiHistory: arrayUnion({
-          upiId, amount, date: new Date().toLocaleString(), status: "Pending"
-        })
-      });
-
-      alert("Withdrawal under review ✅");
-      location.reload();
     }
 
     async function cashoutRedeem() {
-      const email = document.getElementById("email").value.trim();
+      const email = document.getElementById("email").value;
       const amount = parseInt(document.getElementById("redeemAmount").value);
-      if (!email.includes("@") || isNaN(amount) || amount < 50 || amount > 5000) {
-        return alert("Enter valid Email and amount (₹50–₹5000)");
+      if (!email.includes("@")) return alert("Enter a valid email");
+      if (amount < 50 || amount > 5000) return alert("Amount must be between ₹50 and ₹5000");
+
+      const userRef = doc(db, "users", currentUser.uid);
+      const userSnap = await getDoc(userRef);
+      const data = userSnap.data();
+      if ((data.redeemHistory || []).some(r => r.status === "Pending")) return alert("You already have a pending redeem request.");
+
+      if (data.balance >= amount) {
+        await updateDoc(userRef, {
+          balance: data.balance - amount,
+          redeemHistory: arrayUnion({
+            email,
+            amount,
+            code: "Pending",
+            status: "Pending",
+            date: new Date().toLocaleString()
+          })
+        });
+        alert("Redeem request submitted!");
+        location.reload();
+      } else {
+        alert("Insufficient balance");
       }
-
-      if (hasPending(userData.redeemHistory)) {
-        return alert("You already have a pending Redeem withdrawal.");
-      }
-
-      if (userData.balance < amount) {
-        return alert("Insufficient balance.");
-      }
-
-      const userRef = doc(db, "users", auth.currentUser.uid);
-      await updateDoc(userRef, {
-        balance: userData.balance - amount,
-        redeemHistory: arrayUnion({
-          email, amount, date: new Date().toLocaleString(), code: "", status: "Pending"
-        })
-      });
-
-      alert("Redeem request submitted 🕒");
-      location.reload();
     }
 
-    function renderHistory(data) {
-      const upi = data.upiHistory || [];
-      const redeem = data.redeemHistory || [];
-      historyDiv.innerHTML =
-        upi.map(e => `<div class="history-entry">UPI: ₹${e.amount}<br>To: ${e.upiId}<br>${e.date}<br>Status: ${e.status}</div>`).join('') +
-        redeem.map(e => `<div class="history-entry">Redeem: ₹${e.amount}<br>Email: ${e.email}<br>${e.date}<br>Status: ${e.status}</div>`).join('');
+    function loadHistory(data) {
+      const redeemDiv = document.getElementById("redeem-history");
+      const upiDiv = document.getElementById("upi-history");
+      redeemDiv.innerHTML = (data.redeemHistory || []).map(h => `
+        <div class="history-entry">
+          ₹${h.amount} to ${h.email}<br/>Code: ${h.code || 'Pending'}<br/>${h.date}
+        </div>`).join('') || "<p>No redeem history</p>";
+
+      upiDiv.innerHTML = (data.upiHistory || []).map(h => `
+        <div class="history-entry">
+          ₹${h.amount} to ${h.upiId}<br/>Status: ${h.status || 'Pending'}<br/>${h.date}
+        </div>`).join('') || "<p>No UPI history</p>";
     }
   </script>
 </body>
