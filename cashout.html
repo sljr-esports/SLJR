@@ -1,3 +1,4 @@
+<!-- ✅ cashout.html (working with UPI only) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,142 +11,63 @@
       font-family: 'Press Start 2P', monospace;
       margin: 0;
       background: #ffffff;
-      padding-bottom: 80px;
+      padding: 20px;
       color: #222;
     }
-
-    header {
+    h1 {
       text-align: center;
-      padding: 15px 0;
-      border-bottom: 2px solid #ff6600;
-      background: white;
-    }
-
-    header h1 {
-      font-size: 1rem;
       color: #ff6600;
-      margin: 0;
-    }
-
-    .container {
-      padding: 20px;
-    }
-
-    .balance {
-      font-size: 0.8rem;
-      color: green;
       margin-bottom: 20px;
     }
-
-    input[type="text"], input[type="number"] {
+    .balance {
+      color: green;
+      margin-bottom: 10px;
+      font-size: 0.8rem;
+    }
+    input {
       width: 100%;
       padding: 10px;
       margin-bottom: 15px;
+      font-size: 0.8rem;
       border: 2px solid #ff6600;
       border-radius: 5px;
-      font-family: monospace;
-      font-size: 0.75rem;
     }
-
     button {
       width: 100%;
-      padding: 10px;
-      background-color: #ff6600;
+      padding: 12px;
+      background: #ff6600;
       color: white;
       font-family: 'Press Start 2P', monospace;
+      font-size: 0.7rem;
       border: none;
       border-radius: 6px;
       cursor: pointer;
-      font-size: 0.65rem;
-      margin-bottom: 15px;
-      box-shadow: 3px 3px 0 #000;
     }
-
     .history {
       margin-top: 30px;
     }
-
-    .history h3 {
-      font-size: 0.8rem;
-      margin-bottom: 10px;
-    }
-
     .history-entry {
-      border: 1px solid #ccc;
-      padding: 8px;
+      font-size: 0.65rem;
       margin-bottom: 10px;
-      font-size: 0.6rem;
-    }
-
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      background: white;
-      border-top: 1px solid #ddd;
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      height: 60px;
-      z-index: 100;
-    }
-
-    .bottom-nav a {
-      text-align: center;
-      font-size: 0.55rem;
-      color: #222;
-      text-decoration: none;
-    }
-
-    .bottom-nav a.active {
-      color: #ff6600;
-    }
-
-    .bottom-nav img {
-      width: 22px;
-      height: 22px;
-      margin-bottom: 2px;
+      padding: 8px;
+      border: 1px solid #ccc;
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>SLJR E-SPORTS</h1>
-  </header>
 
-  <div class="container">
-    <div class="balance">Balance: ₹<span id="balance">0</span></div>
-    <input type="text" id="upiId" placeholder="Enter UPI ID" />
-    <input type="number" id="amount" placeholder="Enter Amount (₹50–₹5000)" />
-    <button onclick="submitCashout()">Withdraw Now</button>
+  <h1>SLJR E-SPORTS</h1>
+  <div class="balance">Balance: ₹<span id="balance">0</span></div>
 
-    <div class="history">
-      <h3>Cashout History</h3>
-      <div id="cashout-history"></div>
-    </div>
+  <input type="text" id="upiId" placeholder="Enter UPI ID" />
+  <input type="number" id="amount" placeholder="Enter Amount (Min ₹50, Max ₹5000)" />
+  <button onclick="withdraw()">Withdraw Now</button>
+
+  <div class="history">
+    <h3>Cashout History</h3>
+    <div id="history"></div>
   </div>
 
-  <div class="bottom-nav">
-    <a href="home.html">
-      <img src="home.png" alt="Home" />
-      <div>Home</div>
-    </a>
-    <a href="redeem.html">
-      <img src="wallet.png" alt="Wallet" />
-      <div>Wallet</div>
-    </a>
-    <a href="dashboard.html">
-      <img src="profile.png" alt="Dashboard" />
-      <div>Dashboard</div>
-    </a>
-    <a href="match-history.html">
-      <img src="game-history.png" alt="History" />
-      <div>History</div>
-    </a>
-  </div>
-
-  <!-- Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -155,7 +77,7 @@
       apiKey: "AIzaSyA0Qhb6FpIGKqWHwo-0pOvvX7bBRh-9FHY",
       authDomain: "sljr-e-sports.firebaseapp.com",
       projectId: "sljr-e-sports",
-      storageBucket: "sljr-e-sports.appspot.com",
+      storageBucket: "sljr-e-sports.firebasestorage.app",
       messagingSenderId: "568709951241",
       appId: "1:568709951241:web:75498cdedbc058c06e2dd8"
     };
@@ -164,65 +86,65 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
 
-    let currentUser, currentBalance = 0;
+    let userRef;
 
     onAuthStateChanged(auth, async (user) => {
-      if (!user) return window.location.href = "index.html";
-      currentUser = user;
-      const docRef = doc(db, "users", user.uid);
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        const data = docSnap.data();
-        currentBalance = data.balance || 0;
-        document.getElementById("balance").textContent = currentBalance;
-        loadCashoutHistory(data.cashouts || []);
+      if (!user) {
+        alert("Login First");
+        window.location.href = "index.html";
+        return;
       }
+      userRef = doc(db, "users", user.uid);
+      const snap = await getDoc(userRef);
+      const data = snap.data();
+      document.getElementById("balance").textContent = data.balance || 0;
+      loadHistory(data);
     });
 
-    async function submitCashout() {
-      const upiId = document.getElementById("upiId").value.trim();
-      const amount = parseInt(document.getElementById("amount").value);
+    async function withdraw() {
+      const upi = document.getElementById("upiId").value.trim();
+      const amt = parseInt(document.getElementById("amount").value);
 
-      if (!upiId.includes("@")) return alert("Enter valid UPI ID");
-      if (amount < 50 || amount > 5000) return alert("Amount must be between ₹50 and ₹5000");
+      if (!upi.includes('@')) return alert("Invalid UPI ID");
+      if (amt < 50 || amt > 5000) return alert("Amount must be between ₹50 and ₹5000");
 
-      const userRef = doc(db, "users", currentUser.uid);
-      const userSnap = await getDoc(userRef);
-      const data = userSnap.data();
+      const snap = await getDoc(userRef);
+      const data = snap.data();
+      if (data.balance < amt) return alert("Insufficient Balance");
 
-      if (data.cashouts && data.cashouts.some(c => c.status === "Pending")) {
-        return alert("You already have a pending withdrawal.");
-      }
-
-      if (data.balance < amount) {
-        return alert("Insufficient balance.");
-      }
+      const pending = (data.cashouts || []).some(c => c.status === "pending");
+      if (pending) return alert("You already have a pending withdrawal");
 
       await updateDoc(userRef, {
-        balance: data.balance - amount,
+        balance: data.balance - amt,
         cashouts: arrayUnion({
-          upi: upiId,
-          amount: amount,
+          upi,
+          amount: amt,
           date: new Date().toLocaleString(),
-          status: "Pending"
+          status: "pending"
         })
       });
 
-      alert("Withdrawal request submitted!\nYou will receive in 24–48 hours.");
+      alert("Withdrawal submitted! It will be processed in 24-48 hours.");
       location.reload();
     }
 
-    function loadCashoutHistory(list) {
-      const div = document.getElementById("cashout-history");
-      if (!list.length) return div.innerHTML = "<p>No cashout history.</p>";
-      div.innerHTML = list.reverse().map(item => `
+    function loadHistory(data) {
+      const historyDiv = document.getElementById("history");
+      const cashouts = data.cashouts || [];
+      if (cashouts.length === 0) {
+        historyDiv.innerHTML = "<p>No withdrawals yet.</p>";
+        return;
+      }
+      historyDiv.innerHTML = cashouts.map(h => `
         <div class="history-entry">
-          ₹${item.amount} to ${item.upi}<br/>
-          Status: ${item.status}<br/>
-          ${item.date}
+          ₹${h.amount} to ${h.upi} <br/>
+          ${h.date} <br/>
+          Status: ${h.status}
         </div>
       `).join('');
     }
   </script>
+
 </body>
 </html>
