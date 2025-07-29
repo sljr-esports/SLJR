@@ -2,147 +2,162 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>SLJR E-SPORTS REWARDS</title>
+  <title>SLJR E-SPORTS Rewards</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
       margin: 0;
-      font-family: 'Orbitron', sans-serif;
-      background-color: #000;
-      color: white;
+      font-family: monospace;
+      background-color: #0e0e0e;
+      color: #fff;
     }
-
-    header {
-      text-align: center;
+    .header {
       padding: 20px;
-      background: #111;
-      border-bottom: 2px solid orange;
-    }
-
-    header h1 {
+      background-color: #1a1a1a;
+      text-align: center;
+      font-size: 24px;
       color: orange;
-      font-size: 28px;
-      letter-spacing: 2px;
     }
-
-    .rewards-table {
+    .reward-box {
+      padding: 20px;
+      background: #1a1a1a;
       margin: 20px;
-      overflow-x: auto;
-      background-color: #111;
       border: 2px solid orange;
       border-radius: 10px;
     }
-
+    .reward-box h3 {
+      margin-bottom: 10px;
+    }
+    .reward-box div {
+      margin: 5px 0;
+      font-size: 16px;
+    }
+    .leaderboard {
+      margin: 20px;
+      padding: 10px;
+      border: 1px solid orange;
+      border-radius: 10px;
+      background-color: #121212;
+      overflow-y: auto;
+      max-height: 300px;
+    }
     table {
       width: 100%;
       border-collapse: collapse;
       color: white;
     }
-
     th, td {
-      padding: 12px;
+      border: 1px solid orange;
+      padding: 8px;
       text-align: center;
-      border-bottom: 1px solid #333;
     }
-
     th {
-      background-color: orange;
-      color: black;
+      background-color: #222;
     }
-
-    tr:nth-child(even) {
-      background-color: #1a1a1a;
-    }
-
-    footer {
+    .nav-bar {
       position: fixed;
       bottom: 0;
-      width: 100%;
+      left: 0;
+      right: 0;
       background: #111;
       display: flex;
       justify-content: space-around;
       padding: 10px 0;
       border-top: 2px solid orange;
     }
-
-    footer img {
-      height: 30px;
+    .nav-bar img {
       width: 30px;
+      height: 30px;
     }
   </style>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
 </head>
 <body>
 
-  <header>
-    <h1>SLJR E-SPORTS TOURNAMENT</h1>
-    <p style="color: #ccc;">🏆 Match Rewards</p>
-  </header>
+  <div class="header">SLJR E-SPORTS TOURNAMENT REWARDS</div>
 
-  <div class="rewards-table">
-    <table id="rewardTable">
+  <div class="reward-box" id="userReward">
+    <h3>Your Reward</h3>
+    <div>Match ID: <span id="matchId">Loading...</span></div>
+    <div>Rank: <span id="rank">Loading...</span></div>
+    <div>Prize: ₹<span id="prize">Loading...</span></div>
+    <div>Code: <span id="code">Loading...</span></div>
+  </div>
+
+  <div class="leaderboard">
+    <h3 style="color: orange; text-align:center;">🏆 Leaderboard</h3>
+    <table id="leaderboardTable">
       <thead>
         <tr>
-          <th>Match ID</th>
-          <th>Email</th>
           <th>Rank</th>
+          <th>Email</th>
           <th>Prize</th>
           <th>Code</th>
         </tr>
       </thead>
       <tbody>
-        <!-- Data will load here from Firebase -->
+        <!-- Data goes here -->
       </tbody>
     </table>
   </div>
 
-  <footer>
-    <img src="home.png" alt="Home" />
-    <img src="reward.png" alt="Reward" />
-    <img src="profile.png" alt="Profile" />
-  </footer>
+  <div class="nav-bar">
+    <img src="home.png" onclick="location.href='dashboard.html'" />
+    <img src="match.png" onclick="location.href='matches.html'" />
+    <img src="reward.png" onclick="location.href='reward.html'" />
+    <img src="profile.png" onclick="location.href='profile.html'" />
+  </div>
 
   <!-- Firebase -->
   <script type="module">
-    // Import Firebase modules
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyA0Qhb6FpIGKqWHwo-0pOvvX7bBRh-9FHY",
       authDomain: "sljr-e-sports.firebaseapp.com",
+      databaseURL: "https://sljr-e-sports-default-rtdb.firebaseio.com",
       projectId: "sljr-e-sports",
       storageBucket: "sljr-e-sports.appspot.com",
       messagingSenderId: "568709951241",
       appId: "1:568709951241:web:75498cdedbc058c06e2dd8",
-      measurementId: "G-QQ7MWDW2VD",
-      databaseURL: "https://sljr-e-sports-default-rtdb.firebaseio.com"
+      measurementId: "G-QQ7MWDW2VD"
     };
 
-    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
-    const database = getDatabase(app);
+    const db = getDatabase(app);
 
-    // Load rewards data
-    const rewardRef = ref(database, 'rewards/');
-    const rewardTable = document.getElementById("rewardTable").querySelector("tbody");
+    const userEmail = localStorage.getItem("userEmail") || prompt("Enter your registered email:");
 
-    onValue(rewardRef, (snapshot) => {
-      rewardTable.innerHTML = "";
-      snapshot.forEach((childSnapshot) => {
-        const reward = childSnapshot.val();
+    // Show user-specific reward
+    const userRef = ref(db, 'rewards');
+    onValue(userRef, snapshot => {
+      const data = snapshot.val();
+      let found = false;
+      const tbody = document.querySelector("#leaderboardTable tbody");
+      tbody.innerHTML = '';
+
+      Object.values(data || {}).forEach((item, index) => {
         const row = document.createElement("tr");
-
         row.innerHTML = `
-          <td>${reward.matchId || "-"}</td>
-          <td>${reward.email || "-"}</td>
-          <td>${reward.rank || "-"}</td>
-          <td>${reward.prize || "-"}</td>
-          <td>${reward.code || "-"}</td>
+          <td>${item.rank}</td>
+          <td>${item.email}</td>
+          <td>₹${item.prize}</td>
+          <td>${item.code}</td>
         `;
+        tbody.appendChild(row);
 
-        rewardTable.appendChild(row);
+        if (item.email === userEmail) {
+          found = true;
+          document.getElementById("matchId").innerText = item.matchId;
+          document.getElementById("rank").innerText = item.rank;
+          document.getElementById("prize").innerText = item.prize;
+          document.getElementById("code").innerText = item.code;
+        }
       });
+
+      if (!found) {
+        document.getElementById("userReward").innerHTML = "<h3 style='color: red;'>No rewards found for this email.</h3>";
+      }
     });
   </script>
 </body>
