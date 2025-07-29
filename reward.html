@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SLJR E-SPORTS - Rewards</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #ffffff;
+      color: #000;
+    }
+
+    header {
+      background-color: #000;
+      color: #FFD700;
+      text-align: center;
+      padding: 1rem;
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    .container {
+      padding: 1rem;
+    }
+
+    .rewards-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      background: #fff;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      overflow-x: auto;
+    }
+
+    .rewards-table th,
+    .rewards-table td {
+      border: 1px solid #000;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .rewards-table th {
+      background-color: #FFD700;
+      color: #000;
+    }
+
+    .scroll-section {
+      max-height: 400px;
+      overflow-y: auto;
+      margin-top: 20px;
+      border: 2px solid #FFD700;
+      border-radius: 8px;
+    }
+
+    footer {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: #000;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+    }
+
+    footer img {
+      width: 30px;
+      height: 30px;
+    }
+  </style>
+</head>
+<body>
+  <header>SLJR E-SPORTS TOURNAMENT - REWARDS</header>
+
+  <div class="container">
+    <h3>🏆 Your Match Rewards</h3>
+    <div class="scroll-section">
+      <table class="rewards-table" id="rewardsTable">
+        <thead>
+          <tr>
+            <th>Match ID</th>
+            <th>User Email</th>
+            <th>Rank</th>
+            <th>Prize</th>
+            <th>Reward Code</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <!-- Data will be inserted here -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- FOOT NAV -->
+  <footer>
+    <img src="assets/home.png" alt="Home">
+    <img src="assets/tournament.png" alt="Tournaments">
+    <img src="assets/reward.png" alt="Rewards">
+    <img src="assets/profile.png" alt="Profile">
+  </footer>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    // Firebase imports
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
+
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyA0Qhb6FpIGKqWHwo-0pOvvX7bBRh-9FHY",
+      authDomain: "sljr-e-sports.firebaseapp.com",
+      projectId: "sljr-e-sports",
+      storageBucket: "sljr-e-sports.firebasestorage.app",
+      messagingSenderId: "568709951241",
+      appId: "1:568709951241:web:75498cdedbc058c06e2dd8",
+      measurementId: "G-QQ7MWDW2VD"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    async function loadRewards() {
+      const querySnapshot = await getDocs(collection(db, "rewards"));
+      const tableBody = document.getElementById("tableBody");
+      tableBody.innerHTML = ""; // Clear old data
+
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        const row = `
+          <tr>
+            <td>${data.matchId || '-'}</td>
+            <td>${data.email || '-'}</td>
+            <td>${data.rank || '-'}</td>
+            <td>${data.prize || '-'}</td>
+            <td>${data.rewardCode || '-'}</td>
+          </tr>`;
+        tableBody.innerHTML += row;
+      });
+    }
+
+    window.onload = loadRewards;
+  </script>
+</body>
+</html>
