@@ -3,172 +3,166 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>SLJR E-SPORTS REWARDS</title>
+  <title>SLJR E-SPORTS TOURNAMENT - Rewards</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet"/>
   <style>
     body {
-      background-color: #0b0b0b;
-      color: white;
-      font-family: 'Orbitron', sans-serif;
       margin: 0;
-      padding: 0;
+      background: white;
+      font-family: 'Press Start 2P', cursive;
+      color: black;
+      padding-bottom: 100px;
     }
     header {
-      background: linear-gradient(to right, orange, blue);
-      padding: 15px;
+      background-color: #ff6600;
+      color: white;
+      padding: 12px;
       text-align: center;
-      font-size: 1.5rem;
-      font-weight: bold;
+      font-size: 16px;
     }
-    .container {
+    .reward-container {
       padding: 20px;
+      text-align: center;
     }
     .reward-box {
-      background-color: #1e1e1e;
-      padding: 20px;
-      border: 2px solid orange;
+      background: #f0f0f0;
+      border: 2px solid #ff6600;
       border-radius: 10px;
-      margin-bottom: 20px;
-    }
-    .reward-box p {
-      margin: 8px 0;
-      font-size: 1.1rem;
-    }
-    .rank-table {
-      max-height: 300px;
-      overflow-y: auto;
-      background: #121212;
-      border: 1px solid blue;
-      border-radius: 8px;
+      padding: 20px;
       margin-top: 20px;
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      color: white;
+      margin-top: 30px;
     }
     th, td {
       padding: 10px;
-      border-bottom: 1px solid #333;
-      text-align: left;
+      border: 1px solid black;
+      text-align: center;
+      font-size: 12px;
     }
-    th {
-      background-color: #1a1a1a;
-      color: orange;
-      position: sticky;
-      top: 0;
+    .scrollable-table {
+      max-height: 300px;
+      overflow-y: scroll;
+      border: 2px solid black;
+      margin-top: 20px;
     }
-    .footer-nav {
+    footer {
       position: fixed;
       bottom: 0;
       width: 100%;
-      background: #111;
+      background: black;
       display: flex;
       justify-content: space-around;
-      padding: 10px 0;
-      border-top: 1px solid #333;
+      align-items: center;
+      height: 70px;
     }
-    .footer-nav img {
-      width: 28px;
-      height: 28px;
+    footer img {
+      height: 40px;
+      width: 40px;
     }
   </style>
 </head>
 <body>
 
-<header>SLJR E-SPORTS TOURNAMENT - REWARDS</header>
+  <header>SLJR E-SPORTS TOURNAMENT - Rewards</header>
 
-<div class="container">
-  <div class="reward-box" id="userReward">
-    <p><strong>Match ID:</strong> <span id="matchId">Loading...</span></p>
-    <p><strong>Your Rank:</strong> <span id="rank">Loading...</span></p>
-    <p><strong>Prize:</strong> ₹<span id="prize">Loading...</span></p>
-    <p><strong>Claim Code:</strong> <span id="code">Loading...</span></p>
+  <div class="reward-container">
+    <div class="reward-box" id="myReward">
+      <h3>🏆 Your Reward</h3>
+      <p><strong>Match ID:</strong> <span id="matchId">Loading...</span></p>
+      <p><strong>Your Rank:</strong> <span id="rank">Loading...</span></p>
+      <p><strong>Prize:</strong> <span id="prize">Loading...</span></p>
+      <p><strong>Reward Code:</strong> <span id="rewardCode">Loading...</span></p>
+    </div>
+
+    <h3 style="margin-top: 40px;">📋 Rank List</h3>
+    <div class="scrollable-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th>Match ID</th>
+            <th>Rank</th>
+            <th>Prize</th>
+            <th>Code</th>
+          </tr>
+        </thead>
+        <tbody id="rankListBody">
+          <!-- Dynamically filled -->
+        </tbody>
+      </table>
+    </div>
   </div>
 
-  <h3>Rank List</h3>
-  <div class="rank-table">
-    <table id="rankList">
-      <thead>
-        <tr>
-          <th>Rank</th>
-          <th>Player</th>
-          <th>Prize</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
-</div>
+  <footer>
+    <img src="home.png" alt="Home" />
+    <img src="reward.png" alt="Reward" />
+    <img src="trophy.png" alt="Trophy" />
+    <img src="user.png" alt="Profile" />
+  </footer>
 
-<div class="footer-nav">
-  <img src="home.png" alt="Home">
-  <img src="rewards.png" alt="Rewards">
-  <img src="profile.png" alt="Profile">
-</div>
+  <!-- Firebase SDKs -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-<!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js"></script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyA0Qhb6FpIGKqWHwo-0pOvvX7bBRh-9FHY",
+      authDomain: "sljr-e-sports.firebaseapp.com",
+      projectId: "sljr-e-sports",
+      storageBucket: "sljr-e-sports.firebasestorage.app",
+      messagingSenderId: "568709951241",
+      appId: "1:568709951241:web:75498cdedbc058c06e2dd8",
+      measurementId: "G-QQ7MWDW2VD"
+    };
 
-<script>
-  // Your Firebase config
-  const firebaseConfig = {
-    apiKey: "AIzaSyA0Qhb6FpIGKqWHwo-0pOvvX7bBRh-9FHY",
-    authDomain: "sljr-e-sports.firebaseapp.com",
-    projectId: "sljr-e-sports",
-    storageBucket: "sljr-e-sports.appspot.com",
-    messagingSenderId: "568709951241",
-    appId: "1:568709951241:web:75498cdedbc058c06e2dd8"
-  };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-  // Initialize Firebase
-  const app = firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
+    const matchIdEl = document.getElementById("matchId");
+    const rankEl = document.getElementById("rank");
+    const prizeEl = document.getElementById("prize");
+    const rewardCodeEl = document.getElementById("rewardCode");
+    const rankListBody = document.getElementById("rankListBody");
 
-  auth.onAuthStateChanged(user => {
-    if (user) {
-      const userEmail = user.email;
-      
-      // Get current user's reward
-      db.collection("rewards")
-        .where("email", "==", userEmail)
-        .get()
-        .then(querySnapshot => {
-          if (!querySnapshot.empty) {
-            const data = querySnapshot.docs[0].data();
-            document.getElementById("matchId").textContent = data.matchId || "N/A";
-            document.getElementById("rank").textContent = data.rank || "N/A";
-            document.getElementById("prize").textContent = data.prize || "0";
-            document.getElementById("code").textContent = data.code || "N/A";
-          } else {
-            document.getElementById("userReward").innerHTML = "<p>No rewards found for your account.</p>";
-          }
-        });
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const q = query(collection(db, "rewards"), where("email", "==", user.email));
+        const snapshot = await getDocs(q);
 
-      // Load full rank list
-      db.collection("rewards")
-        .orderBy("rank", "asc")
-        .get()
-        .then(snapshot => {
-          const tableBody = document.querySelector("#rankList tbody");
-          snapshot.forEach(doc => {
-            const d = doc.data();
-            const row = `<tr>
-              <td>${d.rank}</td>
+        if (!snapshot.empty) {
+          const data = snapshot.docs[0].data();
+          matchIdEl.innerText = data.matchId;
+          rankEl.innerText = data.rank;
+          prizeEl.innerText = data.prize;
+          rewardCodeEl.innerText = data.code;
+        } else {
+          document.getElementById("myReward").innerHTML = "<p>No reward available for you.</p>";
+        }
+
+        // Load full rank list
+        const allRewards = await getDocs(collection(db, "rewards"));
+        rankListBody.innerHTML = "";
+        allRewards.forEach(doc => {
+          const d = doc.data();
+          rankListBody.innerHTML += `
+            <tr>
               <td>${d.email}</td>
-              <td>₹${d.prize}</td>
-            </tr>`;
-            tableBody.innerHTML += row;
-          });
+              <td>${d.matchId}</td>
+              <td>${d.rank}</td>
+              <td>${d.prize}</td>
+              <td>${d.code}</td>
+            </tr>
+          `;
         });
-
-    } else {
-      window.location.href = "login.html";
-    }
-  });
-</script>
-
+      } else {
+        window.location.href = "login.html"; // Redirect if not logged in
+      }
+    });
+  </script>
 </body>
 </html>
