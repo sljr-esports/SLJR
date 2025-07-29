@@ -1,129 +1,112 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Redeem - SLJR</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet" />
+  <meta charset="UTF-8">
+  <title>SLJR E-SPORTS REWARDS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
-      font-family: 'Press Start 2P', monospace;
       margin: 0;
-      background: #ffffff;
-      padding-bottom: 80px;
-      color: #222;
+      font-family: 'Orbitron', sans-serif;
+      background-color: #000;
+      color: white;
     }
 
     header {
       text-align: center;
-      padding: 15px 0;
-      border-bottom: 2px solid #ff6600;
-      background: white;
+      padding: 20px;
+      background: #111;
+      border-bottom: 2px solid orange;
     }
 
     header h1 {
-      font-size: 1rem;
-      color: #ff6600;
-      margin: 0;
+      color: orange;
+      font-size: 28px;
+      letter-spacing: 2px;
     }
 
-    .container {
-      padding: 20px;
-      text-align: center;
+    .rewards-table {
+      margin: 20px;
+      overflow-x: auto;
+      background-color: #111;
+      border: 2px solid orange;
+      border-radius: 10px;
     }
 
-    .balance {
-      font-size: 0.8rem;
-      color: green;
-      margin-bottom: 30px;
-    }
-
-    button {
+    table {
       width: 100%;
-      padding: 12px;
-      background-color: #ff6600;
+      border-collapse: collapse;
       color: white;
-      font-family: 'Press Start 2P', monospace;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.65rem;
-      margin-bottom: 15px;
-      box-shadow: 3px 3px 0 #000;
-      transition: 0.3s;
     }
 
-    button:hover {
-      background-color: #e65c00;
+    th, td {
+      padding: 12px;
+      text-align: center;
+      border-bottom: 1px solid #333;
     }
 
-    .bottom-nav {
+    th {
+      background-color: orange;
+      color: black;
+    }
+
+    tr:nth-child(even) {
+      background-color: #1a1a1a;
+    }
+
+    footer {
       position: fixed;
       bottom: 0;
-      left: 0;
       width: 100%;
-      background: white;
-      border-top: 1px solid #ddd;
+      background: #111;
       display: flex;
       justify-content: space-around;
-      align-items: center;
-      height: 60px;
-      z-index: 100;
+      padding: 10px 0;
+      border-top: 2px solid orange;
     }
 
-    .bottom-nav a {
-      text-align: center;
-      font-size: 0.55rem;
-      color: #222;
-      text-decoration: none;
-    }
-
-    .bottom-nav a.active {
-      color: #ff6600;
-    }
-
-    .bottom-nav img {
-      width: 22px;
-      height: 22px;
-      margin-bottom: 2px;
+    footer img {
+      height: 30px;
+      width: 30px;
     }
   </style>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
 </head>
 <body>
+
   <header>
-    <h1>SLJR E-SPORTS</h1>
+    <h1>SLJR E-SPORTS TOURNAMENT</h1>
+    <p style="color: #ccc;">🏆 Match Rewards</p>
   </header>
 
-  <div class="container">
-    <div class="balance">Balance: ₹<span id="balance">0</span></div>
-    <button onclick="location.href='cashout.html'">Cashout</button>
-    <button onclick="location.href='deposit.html'">Deposit</button>
+  <div class="rewards-table">
+    <table id="rewardTable">
+      <thead>
+        <tr>
+          <th>Match ID</th>
+          <th>Email</th>
+          <th>Rank</th>
+          <th>Prize</th>
+          <th>Code</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Data will load here from Firebase -->
+      </tbody>
+    </table>
   </div>
 
-  <div class="bottom-nav">
-    <a href="home.html">
-      <img src="home.png" alt="Home" />
-      <div>Home</div>
-    </a>
-    <a href="redeem.html" class="active">
-      <img src="wallet.png" alt="Wallet" />
-      <div>Wallet</div>
-    </a>
-    <a href="dashboard.html">
-      <img src="profile.png" alt="Dashboard" />
-      <div>Dashboard</div>
-    </a>
-    <a href="match-history.html">
-      <img src="game-history.png" alt="History" />
-      <div>History</div>
-    </a>
-  </div>
+  <footer>
+    <img src="home.png" alt="Home" />
+    <img src="reward.png" alt="Reward" />
+    <img src="profile.png" alt="Profile" />
+  </footer>
 
-  <!-- Firebase Auth + Balance Script -->
+  <!-- Firebase -->
   <script type="module">
+    // Import Firebase modules
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyA0Qhb6FpIGKqWHwo-0pOvvX7bBRh-9FHY",
@@ -131,28 +114,35 @@
       projectId: "sljr-e-sports",
       storageBucket: "sljr-e-sports.appspot.com",
       messagingSenderId: "568709951241",
-      appId: "1:568709951241:web:75498cdedbc058c06e2dd8"
+      appId: "1:568709951241:web:75498cdedbc058c06e2dd8",
+      measurementId: "G-QQ7MWDW2VD",
+      databaseURL: "https://sljr-e-sports-default-rtdb.firebaseio.com"
     };
 
+    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
+    const database = getDatabase(app);
 
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        window.location.href = "index.html";
-        return;
-      }
+    // Load rewards data
+    const rewardRef = ref(database, 'rewards/');
+    const rewardTable = document.getElementById("rewardTable").querySelector("tbody");
 
-      const userRef = doc(db, "users", user.uid);
-      const userSnap = await getDoc(userRef);
+    onValue(rewardRef, (snapshot) => {
+      rewardTable.innerHTML = "";
+      snapshot.forEach((childSnapshot) => {
+        const reward = childSnapshot.val();
+        const row = document.createElement("tr");
 
-      if (userSnap.exists()) {
-        const data = userSnap.data();
-        document.getElementById("balance").textContent = data.balance || 0;
-      } else {
-        document.getElementById("balance").textContent = "0";
-      }
+        row.innerHTML = `
+          <td>${reward.matchId || "-"}</td>
+          <td>${reward.email || "-"}</td>
+          <td>${reward.rank || "-"}</td>
+          <td>${reward.prize || "-"}</td>
+          <td>${reward.code || "-"}</td>
+        `;
+
+        rewardTable.appendChild(row);
+      });
     });
   </script>
 </body>
